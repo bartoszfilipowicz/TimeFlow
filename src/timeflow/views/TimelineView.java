@@ -434,7 +434,12 @@ public class TimelineView extends AbstractView {
 		protected boolean paintOnTop(Graphics2D g, int w, int h)
 		{
 			if (!mouseIsDown)
+            {
+                g.setColor(Color.lightGray);
+                g.drawLine(mouse.x, 0, mouse.x, h);
 				return false;
+            }
+
 			int a=Math.min(mouse.x, firstMouse.x);
 			int b=Math.max(mouse.x, firstMouse.x);
 			g.setColor(new Color(255,255,120,100));
@@ -442,6 +447,7 @@ public class TimelineView extends AbstractView {
 			g.setColor(Color.orange);
 			g.drawLine(a,0,a,h);
 			g.drawLine(b,0,b,h);
+
 			return true;
 		}
 	}
