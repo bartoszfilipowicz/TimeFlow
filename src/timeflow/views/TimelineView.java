@@ -129,12 +129,21 @@ public class TimelineView extends AbstractView {
 		controls.add(layoutPanel, BorderLayout.CENTER);
 	}
 
+    public TimelineVisuals getVisuals()
+    {
+        return visuals;
+    }
 
     public void setAnimationSteps(int animationSteps)
     {
         this.animationSteps = animationSteps;
     }
 
+    public void setAllowPopupMenu(boolean allowPopupMenu)
+    {
+        timelinePanel.setAllowPopupMenu(allowPopupMenu);
+    }
+	
 	class LayoutSetter implements ActionListener
 	{
 		TimelineVisuals.Layout layout;

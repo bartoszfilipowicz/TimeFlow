@@ -1,18 +1,22 @@
 package timeflow.views;
 
-import timeflow.data.db.*;
-import timeflow.data.time.*;
-import timeflow.model.*;
-import timeflow.vis.*;
-import timeflow.app.ui.*;
+import timeflow.app.ui.EditRecordPanel;
+import timeflow.data.db.Act;
+import timeflow.data.db.Field;
+import timeflow.data.time.RoughTime;
+import timeflow.model.Display;
+import timeflow.model.TFModel;
+import timeflow.vis.Mouseover;
+import timeflow.vis.VisualAct;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.util.*;
-
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 
 
@@ -27,7 +31,8 @@ public abstract class AbstractVisualizationView extends JPanel
 	Act selectedAct;
 	RoughTime selectedTime;
 	Set<JMenuItem> urlItems=new HashSet<JMenuItem>();
-	
+	boolean allowPopupMenu = true;
+
 	public AbstractVisualizationView(TFModel model)
 	{
 		this.model=model;
@@ -84,8 +89,10 @@ public abstract class AbstractVisualizationView extends JPanel
 		        pop(e);
 		    }
 
-		    private void pop(MouseEvent e) {
-		        if (e.isPopupTrigger()) {
+		    private void pop(MouseEvent e)
+            {
+		        if (e.isPopupTrigger() && allowPopupMenu)
+                {
 		        	Point p=new Point(e.getX(), e.getY());
 		        	Mouseover o=find(p);
 		        	boolean onAct= o!=null && o.thing instanceof VisualAct;
@@ -144,6 +151,16 @@ public abstract class AbstractVisualizationView extends JPanel
 		    }
 		});
 	}
+
+    public boolean getAllowPopupMenu()
+    {
+        return allowPopupMenu;
+    }
+
+    public void setAllowPopupMenu(boolean allowPopupMenu)
+    {
+        this.allowPopupMenu = allowPopupMenu;
+    }
 	
 	public RoughTime getTime(Point p)
 	{
