@@ -134,7 +134,7 @@ public class TimelineView extends AbstractView {
     {
         this.animationSteps = animationSteps;
     }
-	
+
 	class LayoutSetter implements ActionListener
 	{
 		TimelineVisuals.Layout layout;
@@ -298,27 +298,73 @@ public class TimelineView extends AbstractView {
 		public TimelinePanel(TFModel model)
 		{
 			super(model);
+
+            addMouseWheelListener(new MouseWheelListener()
+            {
+                @Override
+                public void mouseWheelMoved(MouseWheelEvent e)
+                {
+                    int rotateCount = Math.abs(e.getWheelRotation());
+
+                    if (e.getWheelRotation() > 0)
+                    {
+                        // Zoom out
+                        Interval zoom = visuals.getViewInterval()
+                            .subinterval(-0.5 * rotateCount, 1.5 * rotateCount)
+                            .intersection(visuals.getGlobalInterval());
+
+                        moveTime(zoom);
+                    }
+                    else
+                    {
+                        // Zoom in
+                        moveTime(visuals.getViewInterval().subinterval(.333 / rotateCount, .667 / rotateCount));
+                    }
+                }
+            });
+
 			addMouseListener(new MouseAdapter() {
 
 				@Override
-				public void mouseClicked(MouseEvent e) {
-					if (e.getClickCount()==2)
-					{
-						moveTime(visuals.getViewInterval().subinterval(.333, .667));
-					}
+				public void mouseClicked(MouseEvent e)
+                {
+                    if (e.getButton() == MouseEvent.BUTTON3)
+                    {
+                        // Zoom out a bit on right-click
+                        Interval zoom=visuals.getViewInterval().subinterval(-1, 2).intersection(visuals.getGlobalInterval());
+                        moveTime(zoom);
+                    }
+                    else if (e.getClickCount() == 2)
+                    {
+                        if (e.getButton() == MouseEvent.BUTTON1)
+                        {
+                            // Zoom in a bit
+                            moveTime(visuals.getViewInterval().subinterval(.333, .667));
+                        }
+                        else if (e.getButton() == MouseEvent.BUTTON3)
+                        {
+                            // Zoom out 100%
+                            moveTime(visuals.getGlobalInterval());
+                        }
+                    }
 				}
 
 				@Override
-				public void mouseExited(MouseEvent e) {
+				public void mouseExited(MouseEvent e)
+                {
 					mouse.setLocation(new Point(-1,-1));
 					repaint();
 				}
 
 				@Override
-				public void mousePressed(MouseEvent e) {
+				public void mousePressed(MouseEvent e)
+                {
 					// was this a right-click or ctrl-click? ignore.
-					if (e.isPopupTrigger())
+					if (e.isPopupTrigger() || e.getButton() == MouseEvent.BUTTON3)
+                    {
 						return;
+                    }
+
 					// did we click on a date label?
 					for (Mouseover o:objectLocations)
 					{
