@@ -1,21 +1,24 @@
 package timeflow.views;
 
 import timeflow.app.ui.ComponentCluster;
-import timeflow.data.db.*;
-import timeflow.data.time.*;
-import timeflow.model.*;
-import timeflow.views.CalendarView.CalendarPanel;
-import timeflow.views.CalendarView.ScrollingCalendar;
-import timeflow.vis.*;
-import timeflow.vis.timeline.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
+import timeflow.data.db.DBUtils;
+import timeflow.data.time.Interval;
+import timeflow.data.time.RoughTime;
+import timeflow.data.time.TimeUnit;
+import timeflow.model.TFEvent;
+import timeflow.model.TFModel;
+import timeflow.model.VirtualField;
+import timeflow.vis.Mouseover;
+import timeflow.vis.TimeScale;
+import timeflow.vis.timeline.AxisRenderer;
+import timeflow.vis.timeline.TimelineRenderer;
+import timeflow.vis.timeline.TimelineSlider;
+import timeflow.vis.timeline.TimelineVisuals;
 
 import javax.swing.*;
-
-import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
 
 public class TimelineView extends AbstractView {
 
@@ -26,8 +29,9 @@ public class TimelineView extends AbstractView {
 	JButton fit;
 	ScrollingTimeline scroller;
 	JPanel controls;
-	
-	public JComponent _getControls()
+    int animationSteps = 15;
+
+    public JComponent _getControls()
 	{
 		return controls;
 	}
@@ -124,6 +128,12 @@ public class TimelineView extends AbstractView {
 		
 		controls.add(layoutPanel, BorderLayout.CENTER);
 	}
+
+
+    public void setAnimationSteps(int animationSteps)
+    {
+        this.animationSteps = animationSteps;
+    }
 	
 	class LayoutSetter implements ActionListener
 	{
@@ -143,7 +153,7 @@ public class TimelineView extends AbstractView {
 	
 	void moveTime(Interval interval)
 	{
-		new TimeAnimator(interval).start();
+		new TimeAnimator(interval, animationSteps).start();
 	}
 	
 	void redraw()
@@ -190,10 +200,13 @@ public class TimelineView extends AbstractView {
 	class TimeAnimator extends Thread
 	{
 		Interval i1, i2;
-		TimeAnimator(Interval i2)
+        int animationSteps;
+
+        TimeAnimator(Interval i2, int animationSteps)
 		{
 			this.i1=visuals.getViewInterval();
 			this.i2=i2;
+            this.animationSteps = animationSteps;
 		}
 		TimeAnimator(Interval i1, Interval i2)
 		{
@@ -203,7 +216,8 @@ public class TimelineView extends AbstractView {
 		
 		public void run()
 		{
-			int n=15;
+			int n = animationSteps;
+
 			for (int i=0; i<n; i++)
 			{
 				final long start=((n-i)*i1.start+i*i2.start)/n;
@@ -218,6 +232,19 @@ public class TimelineView extends AbstractView {
 					sleep(20);
 				} catch (Exception e) {}
 			}
+
+            // Set the final position
+            try {
+                SwingUtilities.invokeAndWait(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        visuals.setTimeBounds(i2.start, i2.end);
+                        redraw();
+                    }
+                });
+            } catch (Exception e) {}
 		}
 	}
 	
