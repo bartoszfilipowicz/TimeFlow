@@ -1,14 +1,15 @@
 package timeflow.data.db;
 
-import java.util.*;
-
-import timeflow.data.db.*;
 import timeflow.data.db.filter.ActFilter;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class BasicDB implements ActDB {
 	
 	private Schema schema;
-	private List<Act> data=new ArrayList<Act>();
+	protected List<Act> data=new ArrayList<Act>();
 	private String source="[unknown]";
 	private String description="";	
 	public String getDescription() {
