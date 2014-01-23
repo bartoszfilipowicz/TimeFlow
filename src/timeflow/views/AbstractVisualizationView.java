@@ -10,6 +10,7 @@ import timeflow.vis.Mouseover;
 import timeflow.vis.VisualAct;
 
 import javax.swing.*;
+import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -20,7 +21,7 @@ import java.util.Set;
 
 
 
-public abstract class AbstractVisualizationView extends JPanel
+public abstract class AbstractVisualizationView extends JPanel implements ItemSelectable
 {
 	Image buffer;
 	Graphics2D graphics;
@@ -32,6 +33,7 @@ public abstract class AbstractVisualizationView extends JPanel
 	RoughTime selectedTime;
 	Set<JMenuItem> urlItems=new HashSet<JMenuItem>();
 	boolean allowPopupMenu = true;
+    EventListenerList listenerList = new EventListenerList();
 
 	public AbstractVisualizationView(TFModel model)
 	{
@@ -80,7 +82,26 @@ public abstract class AbstractVisualizationView extends JPanel
 			}});
 		
 		// deal with right-click.
-		addMouseListener(new MouseAdapter() {
+		addMouseListener(new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                Point p = new Point(e.getX(), e.getY());
+                Mouseover o = find(p);
+
+                if (o != null && o.thing instanceof VisualAct)
+                {
+                    VisualAct v = (VisualAct) o.thing;
+                    selectedAct = v.getAct();
+                }
+                else
+                {
+                    selectedAct = null;
+                }
+
+                notifyItemListeners();
+            }
+
 		    public void mousePressed(MouseEvent e) {
 		        pop(e);
 		    }
@@ -108,11 +129,15 @@ public abstract class AbstractVisualizationView extends JPanel
 		        	}
 		        	else
 		        	{
+                        selectedAct = null;
 		        		edit.setEnabled(false);
 		        		edit.setText("Edit Event");
 		        		delete.setEnabled(false);
 		        		delete.setText("Delete Event");
 		        	}
+
+                    notifyItemListeners();
+
 		        	selectedTime=getTime(p);
 		        	if (selectedTime!=null || onAct)
 		        	{
@@ -161,7 +186,41 @@ public abstract class AbstractVisualizationView extends JPanel
     {
         this.allowPopupMenu = allowPopupMenu;
     }
-	
+
+    private void notifyItemListeners()
+    {
+        for (ItemListener listener : listenerList.getListeners(ItemListener.class))
+        {
+            int type = selectedAct == null ? ItemEvent.DESELECTED : ItemEvent.SELECTED;
+            listener.itemStateChanged(new ItemEvent(this, 0, selectedAct, type));
+        }
+    }
+
+    @Override
+    public Object[] getSelectedObjects()
+    {
+        if (selectedAct == null)
+        {
+            return null;
+        }
+        else
+        {
+            return new Object[] { selectedAct };
+        }
+    }
+
+    @Override
+    public void addItemListener(ItemListener listener)
+    {
+        listenerList.add(ItemListener.class, listener);
+    }
+
+    @Override
+    public void removeItemListener(ItemListener listener)
+    {
+        listenerList.remove(ItemListener.class, listener);
+    }
+
 	public RoughTime getTime(Point p)
 	{
 		return null; 

@@ -134,6 +134,11 @@ public class TimelineView extends AbstractView {
         return visuals;
     }
 
+    public TimelinePanel getTimelinePanel()
+    {
+        return timelinePanel;
+    }
+
     public void setAnimationSteps(int animationSteps)
     {
         this.animationSteps = animationSteps;
