@@ -307,7 +307,7 @@ public class TimelineView extends AbstractView {
 		}
 	}
 	
-	class TimelinePanel extends AbstractVisualizationView
+	public class TimelinePanel extends AbstractVisualizationView
 	{
 		public TimelinePanel(TFModel model)
 		{
