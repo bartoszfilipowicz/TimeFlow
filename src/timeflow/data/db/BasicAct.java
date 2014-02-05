@@ -1,17 +1,17 @@
 package timeflow.data.db;
 
-import timeflow.data.db.*;
-import timeflow.data.time.*;
+import timeflow.data.time.RoughTime;
 
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
 
 public class BasicAct implements Act {
 	
 	private HashMap data=new HashMap();
 	private ActDB db;
-	
-	public BasicAct(ActDB db)
+    private Object userObject;
+
+    public BasicAct(ActDB db)
 	{
 		this.db=db;
 	}
@@ -80,10 +80,20 @@ public class BasicAct implements Act {
 		return (URL)data.get(field.getName());
 	}
 
+    @Override
+    public Object getUserObject() {
+        return userObject;
+    }
 
-	@Override
+
+    @Override
 	public void setURL(Field field, URL url) {
 		data.put(field.getName(), url);
 	}
+
+    @Override
+    public void setUserObject(Object object) {
+        userObject = object;
+    }
 
 }

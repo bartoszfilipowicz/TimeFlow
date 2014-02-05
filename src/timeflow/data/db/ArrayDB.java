@@ -1,10 +1,12 @@
 package timeflow.data.db;
 
-import java.net.URL;
-import java.util.*;
+import timeflow.data.db.filter.ActFilter;
+import timeflow.data.time.RoughTime;
 
-import timeflow.data.db.filter.*;
-import timeflow.data.time.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ArrayDB implements ActDB {
 	
@@ -198,8 +200,9 @@ public class ArrayDB implements ActDB {
 		
 		Object[] data;
 		ActDB db;
-		
-		IndexedAct(ActDB db, int numFields)
+        Object userObject;
+
+        IndexedAct(ActDB db, int numFields)
 		{
 			this.db=db;
 			data=new Object[numFields];
@@ -265,12 +268,22 @@ public class ArrayDB implements ActDB {
 			return (URL)data[field.index];
 		}
 
-		@Override
+        @Override
+        public Object getUserObject() {
+            return userObject;
+        }
+
+        @Override
 		public void setURL(Field field, URL url) {
 			data[field.index]=url;
 		}
 
-	}
+        @Override
+        public void setUserObject(Object object) {
+            userObject = object;
+        }
+
+    }
 
 	@Override
 	public void renameField(Field field, String name) {
