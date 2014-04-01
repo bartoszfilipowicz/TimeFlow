@@ -19,8 +19,6 @@ public class TimeUnit {
 	public static final TimeUnit DECADE=multipleYears(10);
 	public static final TimeUnit CENTURY=multipleYears(100);
 	
-	private static final double DAY_SIZE=24*60*60*1000L;
-	
 	private int quantity;	
 	private long roughSize;
 	private SimpleDateFormat format, fullFormat;
@@ -104,44 +102,47 @@ public class TimeUnit {
 		return round(timestamp, true);
 	}
 
-	public RoughTime round(long timestamp, boolean up)
-	{
-        DateTime dateTime = new DateTime(timestamp);
+    private DateTime.Property getProperty(DateTime dateTime)
+    {
         switch (calendarCode)
         {
             case Calendar.YEAR:
-                dateTime = up
-                        ? dateTime.year().roundCeilingCopy()
-                        : dateTime.year().roundFloorCopy();
-                break;
+                return dateTime.year();
 
             case Calendar.MONTH:
-                dateTime = up
-                        ? dateTime.monthOfYear().roundCeilingCopy()
-                        : dateTime.monthOfYear().roundFloorCopy();
-                break;
+                return dateTime.monthOfYear();
 
             case Calendar.WEEK_OF_YEAR:
-                dateTime = up
-                        ? dateTime.weekOfWeekyear().roundCeilingCopy()
-                        : dateTime.weekOfWeekyear().roundFloorCopy();
-                break;
+                return dateTime.weekOfWeekyear();
 
             case Calendar.DAY_OF_WEEK:
-                dateTime = up
-                        ? dateTime.dayOfWeek().roundCeilingCopy()
-                        : dateTime.dayOfWeek().roundFloorCopy();
-                break;
+                return dateTime.dayOfWeek();
 
             case Calendar.DAY_OF_MONTH:
-                dateTime = up
-                        ? dateTime.dayOfMonth().roundCeilingCopy()
-                        : dateTime.dayOfMonth().roundFloorCopy();
-                break;
+                return dateTime.dayOfMonth();
+
+            case Calendar.HOUR_OF_DAY:
+                return dateTime.hourOfDay();
+
+            case Calendar.MINUTE:
+                return dateTime.minuteOfHour();
+
+            case Calendar.SECOND:
+                return dateTime.secondOfMinute();
 
             default:
                 throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
         }
+    }
+
+	public RoughTime round(long timestamp, boolean up)
+	{
+        DateTime dateTime = new DateTime(timestamp);
+        DateTime.Property property = getProperty(dateTime);
+
+        dateTime = up
+                ? property.roundCeilingCopy()
+                : property.roundFloorCopy();
 		
 		return new RoughTime(dateTime.getMillis(), this);
 	}
@@ -149,31 +150,10 @@ public class TimeUnit {
 	public int get(long timestamp)
 	{
         DateTime dateTime = new DateTime(timestamp);
-        int n;
+        DateTime.Property property = getProperty(dateTime);
+        int n = property.get();
 
-        switch (calendarCode)
-        {
-            case Calendar.YEAR:
-                n = dateTime.getYear();
-                break;
-
-            case Calendar.MONTH:
-                n = dateTime.getMonthOfYear();
-                break;
-
-            case Calendar.WEEK_OF_YEAR:
-                n = dateTime.getWeekOfWeekyear();
-                break;
-
-            case Calendar.DAY_OF_MONTH:
-                n = dateTime.getDayOfMonth();
-                break;
-
-            default:
-                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
-        }
-
-		return quantity==1 ? n : n%quantity;
+		return quantity == 1 ? n : n % quantity;
 	}
 	
 	public void addTo(RoughTime r)
@@ -184,33 +164,10 @@ public class TimeUnit {
 	public void addTo(RoughTime r, int times)
 	{
         DateTime dateTime = new DateTime(r.getTime());
-        switch (calendarCode)
-        {
-            case Calendar.YEAR:
-                dateTime = dateTime.plusYears(quantity * times);
-                break;
+        DateTime.Property property = getProperty(dateTime);
+        dateTime = property.addToCopy(quantity * times);
 
-            case Calendar.MONTH:
-                dateTime = dateTime.plusMonths(quantity * times);
-                break;
-
-            case Calendar.WEEK_OF_YEAR:
-                dateTime = dateTime.plusWeeks(quantity * times);
-                break;
-
-            case Calendar.DAY_OF_MONTH:
-                dateTime = dateTime.plusDays(quantity * times);
-                break;
-
-            case Calendar.DAY_OF_WEEK:
-                dateTime = dateTime.dayOfWeek().addToCopy(quantity * times);
-                break;
-
-            default:
-                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
-        }
-
-		r.setTime(dateTime.getMillis());
+		r.setTime(dateTime);
 	}
 	
 	// Finding the difference between two dates, in a given unit of time,
@@ -228,35 +185,8 @@ public class TimeUnit {
 	{
         DateTime dateTime1 = new DateTime(x);
         DateTime dateTime2 = new DateTime(y);
-        DateTime.Property property1;
-
-        switch (calendarCode)
-        {
-            case Calendar.YEAR:
-                property1 = dateTime1.year();
-                break;
-
-            case Calendar.MONTH:
-                property1 = dateTime1.monthOfYear();
-                break;
-
-            case Calendar.WEEK_OF_YEAR:
-                property1 = dateTime1.weekOfWeekyear();
-                break;
-
-            case Calendar.DAY_OF_WEEK:
-                property1 = dateTime1.dayOfWeek();
-                break;
-
-            case Calendar.DAY_OF_MONTH:
-                property1 = dateTime1.dayOfMonth();
-                break;
-
-            default:
-                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
-        }
-
-        return property1.getDifference(dateTime2);
+        DateTime.Property property = getProperty(dateTime1);
+        return property.getDifference(dateTime2);
 	}
 
 	public long approxNumInRange(long start, long end)
@@ -268,9 +198,9 @@ public class TimeUnit {
 		return roughSize;
 	}
 
-	public String format(Date date)
+	public String format(DateTime dateTime)
 	{
-		return format.format(date);
+		return format.format(dateTime.toDate());
 	}
 
 	public String formatFull(Date date)

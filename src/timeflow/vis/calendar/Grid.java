@@ -1,6 +1,9 @@
 package timeflow.vis.calendar;
 
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 import timeflow.data.time.Interval;
 import timeflow.data.time.RoughTime;
 import timeflow.data.time.TimeUnit;
@@ -10,25 +13,23 @@ import timeflow.vis.VisualAct;
 import timeflow.vis.VisualActFactory;
 
 import java.awt.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class Grid {
 	TimeUnit rowUnit, columnUnit;
 	RoughTime startRow, endRow;
 	Interval interval;
 	HashMap<Long, GridCell> cells;
-	int[] screenGridX;
 	
 	int cellHeight=80, cellWidth, numCols, numRows;
 	Rectangle bounds=new Rectangle();
 	int dy;
-	
-	static final DateFormat dayOfWeek=new SimpleDateFormat("EEE");
-	static final DateFormat month=new SimpleDateFormat("MMM d");
-	static final String[] day={"SUN", "MON", "TUES", "WED", "THURS", "FRI", "SAT"};
-	
+
+	static final DateTimeFormatter month = new DateTimeFormatterBuilder().appendPattern("MMM d").toFormatter();
+
 	Grid(TimeUnit rowUnit, TimeUnit columnUnit, Interval interval)
 	{
 		this.rowUnit=rowUnit;
@@ -156,11 +157,15 @@ public class Grid {
 		{
 			int x=bounds.x+i*cellWidth;
 			g.setColor(gridColor);
-			g.drawLine(x,bounds.y-dy,x,bounds.y+bounds.height-dy);
+			g.drawLine(x, bounds.y - dy, x, bounds.y + bounds.height - dy);
 			if (rowUnit==TimeUnit.WEEK && i<7)
 			{
 				g.setColor(Color.gray);
-				g.drawString(day[i], x, bounds.y-dy-6);
+
+                LocalDate date = new LocalDate();
+                date = date.withDayOfWeek(i + 1);
+
+				g.drawString(date.dayOfWeek().getAsShortText(), x, bounds.y-dy-6);
 			}
 		}
 		
@@ -184,14 +189,14 @@ public class Grid {
 				g.drawLine(bounds.x,y-dy,bounds.x+bounds.width,y-dy);
 				if (y-lastLabelY>30 || lastLabelY<0)
 				{
-					String label=null;
+					String label;
 					if (rowUnit==TimeUnit.WEEK)
 					{
 						int year = new DateTime(labelTime.getTime()).getYear();
 						if (year!=lastYear)
 							label=labelTime.format();
 						else 
-							label=month.format(labelTime.toDate());
+							label=month.print(labelTime.getDateTime());
 						lastYear=year;
 					}
 					else
@@ -213,7 +218,7 @@ public class Grid {
 						
 						g.setColor(Color.gray);
 						g.setFont(display.bold());
-						String label=columnUnit.format(gridLabel.toDate());
+						String label=columnUnit.format(gridLabel.getDateTime());
 						g.drawString(label, bounds.x+j*cellWidth+3, y-dy+labelH);
 						columnUnit.addTo(gridLabel);
 					}
@@ -248,7 +253,7 @@ public class Grid {
 				continue;
 			
 			// label top of cell.
-			int labelH=0;
+			int labelH;
 			g.setColor(new Color(240,240,240));
 			
 			if (visible)
@@ -261,7 +266,7 @@ public class Grid {
 				labelH=13;
 				g.setColor(Color.darkGray);
 				g.setFont(display.bold());
-				String label=columnUnit.format(cell.time.toDate());
+				String label=columnUnit.format(cell.time.getDateTime());
 				g.drawString(label, cx+3, cy+labelH);
 			}
 		

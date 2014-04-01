@@ -8,7 +8,6 @@ import timeflow.vis.TimeScale;
 
 import java.awt.*;
 import java.util.Collection;
-import java.util.Date;
 
 public class AxisRenderer {
 	
@@ -67,7 +66,7 @@ public class AxisRenderer {
 			objectLocations.add(new Mouseover(new Interval(start,end), x0, y, x1-x0-1, h));
 			
 			g.setFont(model.getDisplay().timeLabel());
-			String label=full? t.unit.formatFull(start) : t.unit.format(new Date(start));
+			String label=full? t.unit.formatFull(start) : t.unit.format(new DateTime(start));
 			int tx=x0+3;
 			int ty=y+h-5;
 			g.setColor(full ? Color.darkGray : Color.gray);

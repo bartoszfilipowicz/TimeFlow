@@ -1,58 +1,47 @@
 package timeflow.data.time;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
-public class RoughTime implements Comparable {
-
-	public static final long UNKNOWN=Long.MIN_VALUE;
+public class RoughTime implements Comparable
+{
+    public static final long UNKNOWN = Long.MIN_VALUE;
 	private TimeUnit units;
-	private long time;
+	private DateTime dateTime;
 		
 	public RoughTime(TimeUnit units)
 	{
-		time=UNKNOWN;
-		this.units=units;
+		this(null, units);
 	}
 	
-	public RoughTime(long time, TimeUnit units)
+	public RoughTime(long dateTime, TimeUnit units)
 	{
-		this.time=time;
+		this(new DateTime(dateTime), units);
+	}
+
+	public RoughTime(DateTime dateTime, TimeUnit units)
+	{
+		this.dateTime = dateTime;
 		this.units=units;
 	}
 	
 	public boolean isDefined()
 	{
-		return time!=UNKNOWN;
+		return dateTime != null;
 	}
 	
+	public DateTime getDateTime()
+	{
+		return dateTime;
+	}
+
 	public long getTime()
 	{
-		return time;
+		return dateTime == null ? UNKNOWN : dateTime.getMillis();
 	}
 	
-	public void setTime(long time)
+	public void setTime(DateTime time)
 	{
-		this.time=time;
-	}
-	
-	public Date toDate()
-	{
-		return new Date(time);
-	}
-	
-	public boolean after(RoughTime t)
-	{
-		return t.time<time;
-	}
-	
-	public boolean before(RoughTime t)
-	{
-		return t.time>time;
-	}
-	
-	public RoughTime plus(int numUnits)
-	{
-		return plus(units, numUnits);
+		this.dateTime = time;
 	}
 	
 	public RoughTime plus(TimeUnit unit, int times)
@@ -64,14 +53,12 @@ public class RoughTime implements Comparable {
 	
 	public String toString()
 	{
-		if (isKnown())
-			return new Date(time).toString();
+		if (isDefined())
+        {
+			return dateTime.toString();
+        }
+
 		return "unknown";
-	}
-	
-	public boolean isKnown()
-	{
-		return time!=UNKNOWN;
 	}
 	
 	public boolean equals(Object o)
@@ -79,49 +66,40 @@ public class RoughTime implements Comparable {
 		if (!(o instanceof RoughTime))
 			return false;
 		RoughTime t=(RoughTime)o;
-		return t.units==units  && t.time==time;
+		return t.units==units  && t.dateTime == dateTime;
 	}
 	
 	public RoughTime copy()
 	{
-		RoughTime t=new RoughTime(time, units);
-		return t;
-	}
-	
-	public void setUnits(TimeUnit units)
-	{
-		this.units=units;
-	}
-
-	public TimeUnit getUnits() {
-		return units;
+		return new RoughTime(dateTime, units);
 	}
 	
 	public String format()
 	{
-		return units.formatFull(time);
+		return units.formatFull(dateTime.getMillis());
 	}
 	
 	public static int compare(RoughTime t1, RoughTime t2)
 	{
-		if (t1==t2)
+		if (t1 == t2)
+        {
 			return 0;
-		if (t1==null)
+        }
+		else if (t1 == null || !t1.isDefined())
+        {
 			return -1;
-		if (t2==null)
+        }
+		else if (t2 == null || !t2.isDefined())
+        {
 			return 1;
-		long dt= t1.time-t2.time;
-		if (dt==0)
-			return 0;
-		if (dt>0)
-			return 1;
-		return -1;
+        }
+
+        return t1.dateTime.compareTo(t2.dateTime);
 	}
 
 	@Override
-	public int compareTo(Object o) {
+	public int compareTo(Object o)
+    {
 		return compare(this, (RoughTime)o);
 	}
-
-
 }
