@@ -30,6 +30,7 @@ public class TimelineView extends AbstractView {
 	ScrollingTimeline scroller;
 	JPanel controls;
     int animationSteps = 15;
+    TimeAnimator currentAnimator;
 
     public JComponent _getControls()
 	{
@@ -167,7 +168,13 @@ public class TimelineView extends AbstractView {
 	
 	void moveTime(Interval interval)
 	{
-		new TimeAnimator(interval, animationSteps).start();
+        if (currentAnimator != null)
+        {
+            currentAnimator.cancel();
+        }
+
+		currentAnimator = new TimeAnimator(interval, animationSteps);
+        currentAnimator.start();
 	}
 	
 	void redraw()
@@ -213,6 +220,7 @@ public class TimelineView extends AbstractView {
 	
 	class TimeAnimator extends Thread
 	{
+        boolean cancelled = false;
 		Interval i1, i2;
         int animationSteps;
 
@@ -232,11 +240,12 @@ public class TimelineView extends AbstractView {
 		{
 			int n = animationSteps;
 
-			for (int i=0; i<n; i++)
+			for (int i = 0; i < n && !cancelled; i++)
 			{
 				final long start=((n-i)*i1.start+i*i2.start)/n;
 				final long end=((n-i)*i1.end+i*i2.end)/n;
-				try {
+				try
+                {
 					SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
@@ -244,11 +253,18 @@ public class TimelineView extends AbstractView {
 						redraw();
 					}});
 					sleep(20);
-				} catch (Exception e) {}
+				}
+                catch (Exception e) {}
 			}
 
+            if (cancelled)
+            {
+                return;
+            }
+
             // Set the final position
-            try {
+            try
+            {
                 SwingUtilities.invokeAndWait(new Runnable()
                 {
                     @Override
@@ -258,9 +274,15 @@ public class TimelineView extends AbstractView {
                         redraw();
                     }
                 });
-            } catch (Exception e) {}
+            }
+            catch (Exception e) {}
 		}
-	}
+
+        public void cancel()
+        {
+            cancelled = true;
+        }
+    }
 	
 	class ScrollingTimeline extends JPanel
 	{
@@ -318,13 +340,11 @@ public class TimelineView extends AbstractView {
                 @Override
                 public void mouseWheelMoved(MouseWheelEvent e)
                 {
-                    int rotateCount = Math.abs(e.getWheelRotation());
-
                     if (e.getWheelRotation() > 0)
                     {
                         // Zoom out
                         Interval zoom = visuals.getViewInterval()
-                            .subinterval(-0.5 * rotateCount, 1.5 * rotateCount)
+                            .subinterval(-0.5, 1.5)
                             .intersection(visuals.getGlobalInterval());
 
                         moveTime(zoom);
@@ -332,7 +352,8 @@ public class TimelineView extends AbstractView {
                     else
                     {
                         // Zoom in
-                        moveTime(visuals.getViewInterval().subinterval(.333 / rotateCount, .667 / rotateCount));
+                        double mouseAdjustment = e.getX() / (double) getWidth();
+                        moveTime(visuals.getViewInterval().subinterval(-0.3 + mouseAdjustment, 0.3 + mouseAdjustment));
                     }
                 }
             });
