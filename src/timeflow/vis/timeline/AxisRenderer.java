@@ -1,13 +1,14 @@
 package timeflow.vis.timeline;
 
-import java.awt.*;
-import java.util.*;
-
+import org.joda.time.DateTime;
 import timeflow.data.time.Interval;
-import timeflow.data.time.TimeUtils;
-import timeflow.model.*;
+import timeflow.model.TFModel;
 import timeflow.vis.Mouseover;
 import timeflow.vis.TimeScale;
+
+import java.awt.*;
+import java.util.Collection;
+import java.util.Date;
 
 public class AxisRenderer {
 	
@@ -52,9 +53,10 @@ public class AxisRenderer {
 			
 			int x0=Math.max(x,visuals.getTimeScale().toInt(start));			
 			int x1=visuals.getTimeScale().toInt(end);
-			
-			int dayOfWeek=TimeUtils.cal(start).get(Calendar.DAY_OF_WEEK);
-			
+
+            // +1 because Joda days-of-the-week are indexed from zero and this code was originally written for Calendar
+			int dayOfWeek = new DateTime(start).getDayOfWeek() + 1;
+
 			g.setColor(t.unit.isDayOrLess() && (dayOfWeek==1 || dayOfWeek==7) ? 
 					new Color(245,245,245) : new Color(240,240,240));
 

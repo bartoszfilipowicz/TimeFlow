@@ -1,12 +1,18 @@
 package timeflow.vis.calendar;
 
-import timeflow.data.time.*;
+import org.joda.time.DateTime;
+import timeflow.data.time.Interval;
+import timeflow.data.time.RoughTime;
+import timeflow.data.time.TimeUnit;
 import timeflow.model.Display;
-import timeflow.vis.*;
+import timeflow.vis.Mouseover;
+import timeflow.vis.VisualAct;
+import timeflow.vis.VisualActFactory;
 
-import java.util.*;
 import java.awt.*;
-import java.text.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Grid {
 	TimeUnit rowUnit, columnUnit;
@@ -181,7 +187,7 @@ public class Grid {
 					String label=null;
 					if (rowUnit==TimeUnit.WEEK)
 					{
-						int year=TimeUtils.cal(labelTime.getTime()).get(Calendar.YEAR);
+						int year = new DateTime(labelTime.getTime()).getYear();
 						if (year!=lastYear)
 							label=labelTime.format();
 						else 

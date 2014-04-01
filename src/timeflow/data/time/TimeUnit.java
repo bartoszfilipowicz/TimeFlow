@@ -1,7 +1,10 @@
 package timeflow.data.time;
 
-import java.util.*;
-import java.text.*;
+import org.joda.time.DateTime;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class TimeUnit {
 
@@ -100,48 +103,76 @@ public class TimeUnit {
 	{
 		return round(timestamp, true);
 	}
-	
-	private static final int[] calendarUnits={Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY, Calendar.DAY_OF_MONTH, Calendar.MONTH, Calendar.YEAR};
+
 	public RoughTime round(long timestamp, boolean up)
 	{
-		Calendar c=TimeUtils.cal(timestamp);
+        DateTime dateTime = new DateTime(timestamp);
+        switch (calendarCode)
+        {
+            case Calendar.YEAR:
+                dateTime = up
+                        ? dateTime.year().roundCeilingCopy()
+                        : dateTime.year().roundFloorCopy();
+                break;
+
+            case Calendar.MONTH:
+                dateTime = up
+                        ? dateTime.monthOfYear().roundCeilingCopy()
+                        : dateTime.monthOfYear().roundFloorCopy();
+                break;
+
+            case Calendar.WEEK_OF_YEAR:
+                dateTime = up
+                        ? dateTime.weekOfWeekyear().roundCeilingCopy()
+                        : dateTime.weekOfWeekyear().roundFloorCopy();
+                break;
+
+            case Calendar.DAY_OF_WEEK:
+                dateTime = up
+                        ? dateTime.dayOfWeek().roundCeilingCopy()
+                        : dateTime.dayOfWeek().roundFloorCopy();
+                break;
+
+            case Calendar.DAY_OF_MONTH:
+                dateTime = up
+                        ? dateTime.dayOfMonth().roundCeilingCopy()
+                        : dateTime.dayOfMonth().roundFloorCopy();
+                break;
+
+            default:
+                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
+        }
 		
-		if (calendarCode==Calendar.WEEK_OF_YEAR )
-		{
-			c.set(Calendar.DAY_OF_WEEK, c.getMinimum(Calendar.DAY_OF_WEEK));
-		}
-		else
-		{
-		
-			// set to minimum all fields of finer granularity.
-			int roundingCode=calendarCode;
-			if (calendarCode==Calendar.WEEK_OF_YEAR || calendarCode==Calendar.DAY_OF_WEEK)
-				roundingCode=Calendar.DAY_OF_MONTH;
-			for (int i=0; i<calendarUnits.length; i++)
-			{
-				if (calendarUnits[i]==roundingCode)
-					break;
-				if (i==calendarUnits.length-1)
-					throw new IllegalArgumentException("Unsupported Calendar Unit: "+calendarCode);
-				c.set(calendarUnits[i], c.getMinimum(calendarUnits[i]));
-			}
-			if (quantity>1)
-			{
-				c.set(calendarCode, quantity*(c.get(calendarCode)/quantity));
-			}
-		}
-		
-		// if rounding up, then add a unit at current granularity.
-		if (up)
-			c.add(calendarCode, quantity);
-		
-		return new RoughTime(c.getTimeInMillis(), this);
+		return new RoughTime(dateTime.getMillis(), this);
 	}
 	
 	public int get(long timestamp)
 	{
-		Calendar c= TimeUtils.cal(timestamp);
-		int n=c.get(calendarCode);
+        DateTime dateTime = new DateTime(timestamp);
+        int n;
+
+        switch (calendarCode)
+        {
+            case Calendar.YEAR:
+                n = dateTime.getYear();
+                break;
+
+            case Calendar.MONTH:
+                n = dateTime.getMonthOfYear();
+                break;
+
+            case Calendar.WEEK_OF_YEAR:
+                n = dateTime.getWeekOfWeekyear();
+                break;
+
+            case Calendar.DAY_OF_MONTH:
+                n = dateTime.getDayOfMonth();
+                break;
+
+            default:
+                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
+        }
+
 		return quantity==1 ? n : n%quantity;
 	}
 	
@@ -152,9 +183,34 @@ public class TimeUnit {
 	
 	public void addTo(RoughTime r, int times)
 	{
-		Calendar c=TimeUtils.cal(r.getTime());
-		c.add(calendarCode, quantity*times);
-		r.setTime(c.getTimeInMillis());
+        DateTime dateTime = new DateTime(r.getTime());
+        switch (calendarCode)
+        {
+            case Calendar.YEAR:
+                dateTime = dateTime.plusYears(quantity * times);
+                break;
+
+            case Calendar.MONTH:
+                dateTime = dateTime.plusMonths(quantity * times);
+                break;
+
+            case Calendar.WEEK_OF_YEAR:
+                dateTime = dateTime.plusWeeks(quantity * times);
+                break;
+
+            case Calendar.DAY_OF_MONTH:
+                dateTime = dateTime.plusDays(quantity * times);
+                break;
+
+            case Calendar.DAY_OF_WEEK:
+                dateTime = dateTime.dayOfWeek().addToCopy(quantity * times);
+                break;
+
+            default:
+                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
+        }
+
+		r.setTime(dateTime.getMillis());
 	}
 	
 	// Finding the difference between two dates, in a given unit of time,
@@ -167,50 +223,40 @@ public class TimeUnit {
 	// We also have to handle the fact that months and years aren't constant lengths.
 	//
 	// Rather than write all this ourselves, in this code we
-	// use the Calendar class to do the heavy lifting.
+	// use the Calendar^H^H^H^H^H^H^H^H^H Joda DateTime class to do the heavy lifting.
 	public long difference(long x, long y)
 	{
-		// If this is not one of the hard cases,
-		// just divide the timespan by the length of time unit.
-		// Note that we're not worrying about hours and daylight savings time.
-		if (calendarCode!=Calendar.YEAR && calendarCode!=Calendar.MONTH && 
-		   calendarCode!=Calendar.DAY_OF_MONTH && calendarCode!=Calendar.DAY_OF_WEEK &&
-		   calendarCode!=Calendar.WEEK_OF_YEAR)
-		{
-			return (x-y)/roughSize;
-		}
-			
-		Calendar c1=TimeUtils.cal(x), c2=TimeUtils.cal(y); 
-		int diff=0;
-		switch (calendarCode)
-		{
-			case Calendar.YEAR:
-				return (c1.get(Calendar.YEAR)-c2.get(Calendar.YEAR))/quantity;
-				
-			case Calendar.MONTH:
-				diff= 12*(c1.get(Calendar.YEAR)-c2.get(Calendar.YEAR))+
-				              c1.get(Calendar.MONTH)-c2.get(Calendar.MONTH);
-				return diff/quantity;
-				
-			case Calendar.DAY_OF_MONTH:
-			case Calendar.DAY_OF_WEEK:
-			case Calendar.DAY_OF_YEAR:
-			case Calendar.WEEK_OF_MONTH:
-			case Calendar.WEEK_OF_YEAR:
-				// This is ugly, but believe me, it beats the alternative methods :-)
-				// We use the Calendar class's knowledge of daylight savings time.
-				// and also the fact that if we calculate this naively, then we aren't going
-				// to be off by more than one in either direction.
-				int naive=(int)Math.round((x-y)/(double)roughSize);
-				c2.add(calendarCode, naive*quantity);
-				if (c1.get(calendarCode)==c2.get(calendarCode))
-					return naive/quantity;
-				c2.add(calendarCode, quantity);
-				if (c1.get(calendarCode)==c2.get(calendarCode))
-					return naive/quantity+1;
-				return naive/quantity-1;
-		}
-		throw new IllegalArgumentException("Unexpected calendar code: "+calendarCode);
+        DateTime dateTime1 = new DateTime(x);
+        DateTime dateTime2 = new DateTime(y);
+        DateTime.Property property1;
+
+        switch (calendarCode)
+        {
+            case Calendar.YEAR:
+                property1 = dateTime1.year();
+                break;
+
+            case Calendar.MONTH:
+                property1 = dateTime1.monthOfYear();
+                break;
+
+            case Calendar.WEEK_OF_YEAR:
+                property1 = dateTime1.weekOfWeekyear();
+                break;
+
+            case Calendar.DAY_OF_WEEK:
+                property1 = dateTime1.dayOfWeek();
+                break;
+
+            case Calendar.DAY_OF_MONTH:
+                property1 = dateTime1.dayOfMonth();
+                break;
+
+            default:
+                throw new IllegalStateException("Unsupported calendar code: " + calendarCode);
+        }
+
+        return property1.getDifference(dateTime2);
 	}
 
 	public long approxNumInRange(long start, long end)

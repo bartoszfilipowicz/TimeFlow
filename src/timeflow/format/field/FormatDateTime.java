@@ -3,12 +3,11 @@
  */
 package timeflow.format.field;
 
-import java.text.ParseException;
-import java.util.Calendar;
-
+import org.joda.time.DateTime;
 import timeflow.data.time.RoughTime;
 import timeflow.data.time.TimeUnit;
-import timeflow.data.time.TimeUtils;
+
+import java.text.ParseException;
 
 public class FormatDateTime extends FieldFormat
 {
@@ -49,7 +48,7 @@ public class FormatDateTime extends FieldFormat
 				return -1;
 			if (g.getLastGoodFormat().getUnits()==TimeUnit.YEAR)
 			{
-				int year=TimeUtils.cal(f.getTime()).get(Calendar.YEAR);
+				int year = new DateTime(f.getTime()).getYear();
 				if (year>2100)
 					return -1;
 				if (year>1900 && year<2050)
