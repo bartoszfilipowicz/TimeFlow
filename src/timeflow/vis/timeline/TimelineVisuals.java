@@ -145,7 +145,7 @@ public class TimelineVisuals {
 	}
 	
 	public void note(TFEvent e) {
-		ActList all=null;
+		ActList all;
 		if (e.type==TFEvent.Type.DATABASE_CHANGE)
 		{
 			all=model.getDB().all();

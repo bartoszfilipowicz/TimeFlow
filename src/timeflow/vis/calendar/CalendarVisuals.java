@@ -1,13 +1,16 @@
 package timeflow.vis.calendar;
 
+import timeflow.data.db.DBUtils;
+import timeflow.data.time.Interval;
+import timeflow.data.time.TimeUnit;
+import timeflow.model.TFEvent;
+import timeflow.model.TFModel;
+import timeflow.model.VirtualField;
+import timeflow.vis.Mouseover;
+import timeflow.vis.VisualEncoder;
+
 import java.awt.*;
 import java.util.Collection;
-
-
-import timeflow.model.*;
-import timeflow.vis.*;
-import timeflow.data.time.*;
-import timeflow.data.db.*;
 
 public class CalendarVisuals {
 	VisualEncoder encoder;

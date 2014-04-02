@@ -1,17 +1,16 @@
 package timeflow.vis;
 
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-
 import timeflow.data.db.Act;
 import timeflow.data.db.ActDB;
 import timeflow.data.db.ActList;
 import timeflow.data.db.Field;
 import timeflow.model.TFModel;
 import timeflow.model.VirtualField;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 public class VisualActFactory {
 	// create one VisualAct per Act
@@ -35,7 +34,7 @@ public class VisualActFactory {
 		for (Act a: acts)
 		{
 			String[] tags=a.getTextList(tagField);
-			if (tags==null || tags.length<2)
+			if (tags == null || tags.length < 2)
 			{				
 				VisualAct v=new TagVisualAct(a);
 				if (tags!=null && tags.length==1)

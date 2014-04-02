@@ -1,14 +1,16 @@
 package timeflow.vis;
 
-import timeflow.data.db.*;
-import timeflow.data.time.*;
-import timeflow.model.*;
+import timeflow.data.db.Act;
+import timeflow.data.db.ActDB;
+import timeflow.data.db.Field;
+import timeflow.data.time.RoughTime;
+import timeflow.model.Display;
+import timeflow.model.VirtualField;
+import timeflow.util.ColorUtils;
 import timeflow.vis.timeline.TimelineTrack;
 
 import java.awt.*;
-import java.util.*;
-
-import timeflow.util.*;
+import java.util.ArrayList;
 
 public class VisualAct implements Comparable 
 {
@@ -19,7 +21,7 @@ public class VisualAct implements Comparable
 	String trackString;
 	TimelineTrack track;
 	boolean visible;
-	Act act;
+	final Act act;
 	int x,y;
 	int spaceToRight;
 	RoughTime start, end;

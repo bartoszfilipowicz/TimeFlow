@@ -6,11 +6,15 @@ import timeflow.model.*;
 import java.awt.Color;
 import java.util.*;
 
-public class VisualEncoder {
+public final class VisualEncoder {
 	
 	private TFModel model;
 	private java.util.List<VisualAct> visualActs=new ArrayList<VisualAct>();
 	private double maxSize=0;
+    private Field label;
+    private Field track;
+    private Field color;
+    private Field size;
 	
 	public VisualEncoder(TFModel model)
 	{
@@ -32,8 +36,13 @@ public class VisualEncoder {
 
 	public List<VisualAct> apply()
 	{
-		
-		ActList visibleActs=model.getActs();
+        ActDB db=model.getDB();
+        label=db.getField(VirtualField.LABEL);
+        track=db.getField(VirtualField.TRACK);
+        color=db.getField(VirtualField.COLOR);
+        size=db.getField(VirtualField.SIZE);
+
+		ActList modelActs = model.getActs();
 		Field start=model.getDB().getField(VirtualField.START);
 		Field end=model.getDB().getField(VirtualField.END);
 		Field size=model.getDB().getField(VirtualField.SIZE);
@@ -42,30 +51,35 @@ public class VisualEncoder {
 			double[] minmax=DBUtils.minmax(model.getActs(), size);
 			maxSize=Math.max(Math.abs(minmax[0]), Math.abs(minmax[1]));
 		}
-		
+
+        List<VisualAct> visibleActs = new ArrayList<VisualAct>(modelActs.size());
+
 		// apply color, label, visibility, etc.
 		for (VisualAct v: visualActs)
 		{
 			Act a=v.getAct();
 			v.setStart(start==null ? null : a.getTime(start));
 			v.setEnd(end==null ? null : a.getTime(end));
-			v.setVisible(visibleActs.contains(a) && v.getStart()!=null && v.getStart().isDefined());
+            if (modelActs.contains(a) && v.getStart()!=null && v.getStart().isDefined())
+            {
+			    v.setVisible(true);
+                visibleActs.add(v);
+            }
+            else
+            {
+                v.setVisible(false);
+            }
 			apply(v);
 		}	
 		
-		return visualActs;
+		return visibleActs;
 	}
 
-	public void apply(VisualAct v)
+	private void apply(VisualAct v)
 	{
 		Display display=model.getDisplay();
-		ActDB db=model.getDB();
 		Act a=v.getAct();
-		Field label=db.getField(VirtualField.LABEL);
-		Field track=db.getField(VirtualField.TRACK);
-		Field color=db.getField(VirtualField.COLOR);
-		Field size=db.getField(VirtualField.SIZE);
-		
+
 		if (label==null)
 			v.setLabel("");
 		else
