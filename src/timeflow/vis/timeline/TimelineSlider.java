@@ -1,17 +1,15 @@
 package timeflow.vis.timeline;
 
-import timeflow.data.db.*;
-import timeflow.data.time.*;
-import timeflow.model.*;
+import timeflow.data.time.Interval;
+import timeflow.model.ModelPanel;
+import timeflow.model.TFEvent;
 import timeflow.vis.TimeScale;
 import timeflow.vis.VisualAct;
-import timeflow.vis.timeline.*;
-
-import timeflow.util.*;
 
 import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 public class TimelineSlider extends ModelPanel {
 	
@@ -174,10 +172,18 @@ public class TimelineSlider extends ModelPanel {
 		}
 		if (mostInSlot>30)
 		{
+            double logMax = Math.log10(mostInSlot);
+
 			g.setColor(Color.gray);
 			for (int i=0; i<slots.length; i++)
 			{
-				int sh=(h*slots[i])/mostInSlot;
+                double logValue = Math.log10(slots[i]);
+                if (Double.isInfinite(logValue) || Double.isNaN(logValue))
+                {
+                    logValue = 0;
+                }
+
+				int sh = (int)((h*logValue) / logMax);
 				g.fillRect(slotW*i, h-sh, slotW, sh);
 			}
 		}
