@@ -340,20 +340,67 @@ public class TimelineView extends AbstractView {
                 @Override
                 public void mouseWheelMoved(MouseWheelEvent e)
                 {
-                    if (e.getWheelRotation() > 0)
+                    if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)
                     {
-                        // Zoom out
-                        Interval zoom = visuals.getViewInterval()
-                            .subinterval(-0.5, 1.5)
-                            .intersection(visuals.getGlobalInterval());
+                        // Zooming...
 
-                        moveTime(zoom);
+                        if (e.getWheelRotation() > 0)
+                        {
+                            // Zoom out
+                            Interval zoom = visuals.getViewInterval()
+                                .subinterval(-0.5, 1.5)
+                                .intersection(visuals.getGlobalInterval());
+
+                            moveTime(zoom);
+                        }
+                        else
+                        {
+                            // Zoom in
+                            double mouseAdjustment = e.getX() / (double) getWidth();
+
+                            Interval zoom = visuals.getViewInterval()
+                                .subinterval(-0.3 + mouseAdjustment, 0.3 + mouseAdjustment)
+                                .intersection(visuals.getGlobalInterval());
+
+                            if (zoom.length() < 1000)
+                            {
+                                zoom = zoom.expand(1000);
+                            }
+
+                            moveTime(zoom);
+                        }
                     }
                     else
                     {
-                        // Zoom in
-                        double mouseAdjustment = e.getX() / (double) getWidth();
-                        moveTime(visuals.getViewInterval().subinterval(-0.3 + mouseAdjustment, 0.3 + mouseAdjustment));
+                        // Scrolling...
+
+                        long start = visuals.getViewInterval().start;
+                        long length = Math.max(visuals.getViewInterval().length(), 1000);
+
+                        long adjustment = e.getWheelRotation() * length / 5;
+
+                        Interval scroll = visuals.getViewInterval()
+                            .translateTo(start + adjustment)
+                            .intersection(visuals.getGlobalInterval());
+
+                        // If the scroll bumps up against the edge of the slider just move it to the global 'start' or 'end'
+                        if (scroll.length() != length)
+                        {
+                            if (e.getWheelRotation() < 0)
+                            {
+                                scroll = new Interval(visuals.getGlobalInterval().start,
+                                                      visuals.getGlobalInterval().start + length)
+                                    .intersection(visuals.getGlobalInterval());
+                            }
+                            else
+                            {
+                                scroll = new Interval(visuals.getGlobalInterval().end - length,
+                                                      visuals.getGlobalInterval().end)
+                                    .intersection(visuals.getGlobalInterval());
+                            }
+                        }
+
+                        moveTime(scroll);
                     }
                 }
             });

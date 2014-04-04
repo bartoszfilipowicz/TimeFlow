@@ -46,7 +46,7 @@ public class DBUtils {
 					if (t==null)
 						t=new Interval(d.getTime(), d.getTime());
 					else
-						t.include(d.getTime());
+						t = t.include(d.getTime());
 				}
 			}
 		}
@@ -70,7 +70,7 @@ public class DBUtils {
 				if (t==null)
 					t=new Interval(d.getTime(), d.getTime());
 				else
-					t.include(d.getTime());
+					t = t.include(d.getTime());
 			}
 		}
 		return t!=null ? t : new Interval(RoughTime.UNKNOWN, RoughTime.UNKNOWN);

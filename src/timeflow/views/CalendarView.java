@@ -1,12 +1,13 @@
 package timeflow.views;
 
 import timeflow.app.ui.ComponentCluster;
-import timeflow.data.db.*;
+import timeflow.data.db.ActDB;
 import timeflow.data.time.Interval;
 import timeflow.data.time.RoughTime;
-import timeflow.model.*;
-import timeflow.vis.*;
-import timeflow.vis.calendar.*;
+import timeflow.model.TFEvent;
+import timeflow.model.TFModel;
+import timeflow.vis.Mouseover;
+import timeflow.vis.calendar.CalendarVisuals;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,9 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class CalendarView extends AbstractView {
 
@@ -231,7 +230,7 @@ public class CalendarView extends AbstractView {
 					Interval viewInterval=getModel().getViewInterval();
 					if (viewInterval!=null)
 					{
-						viewInterval.translateTo(startTime.getTime());
+						getModel().setViewInterval(viewInterval.translateTo(startTime.getTime()));
 					}
 					
 					calendarPanel.drawVisualization();

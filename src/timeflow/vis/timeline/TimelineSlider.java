@@ -53,7 +53,7 @@ public class TimelineSlider extends ModelPanel {
 				else
 					change=Modify.NONE;
 				mouseHit.setLocation(mx,my);
-				original=window().copy();
+				original=getWindow();
 				mouse.setLocation(mx,my);
 				repaint();
 			}
@@ -74,29 +74,47 @@ public class TimelineSlider extends ModelPanel {
 				int mouseDiff=mouse.x-mouseHit.x;
 				Interval limits=visuals.getGlobalInterval();
 				long timeDiff=scale.spaceToTime(mouseDiff);
-				
+
+                Interval window = getWindow();
 				switch (change)
 				{
 					case POSITION: 						
-							window().translateTo(original.start+timeDiff); 
-							window().clampInside(limits);
+						window = window
+                            .translateTo(original.start+timeDiff)
+                            .clampInside(limits);
+                        setWindow(window);
 						break;
-					case START: window().start=Math.min(original.start+timeDiff, original.end-minRange); 
-								window().start=Math.max(window().start, limits.start);
+
+					case START:
+                        long start = Math.min(original.start+timeDiff, original.end-minRange);
+                        start = Math.max(start, limits.start);
+                        window = window.setTo(start, window.end);
+                        setWindow(window);
 						break;
-					case END: window().end=Math.max(original.end+timeDiff, original.start+minRange);
-							  window().end=Math.min(window().end, limits.end);
+
+					case END:
+                        long end = Math.max(original.end+timeDiff, original.start+minRange);
+                        end = Math.min(end, limits.end);
+                        window = window.setTo(window.start, end);
+                        setWindow(window);
+                        break;
 				}
-				getModel().setViewInterval(window());
+
+				getModel().setViewInterval(window);
 				action.run();
 				repaint();
 			}
 		});
 	}
 	
-	private Interval window()
+	private Interval getWindow()
 	{
 		return visuals.getViewInterval();
+	}
+
+	private void setWindow(Interval interval)
+	{
+		visuals.setViewInterval(interval);
 	}
 	
 	@Override
@@ -117,7 +135,7 @@ public class TimelineSlider extends ModelPanel {
 	
 	void setTimeInterval(Interval interval)
 	{
-		window().setTo(interval);
+        setWindow(interval);
 		repaint();
 	}
 	
@@ -145,8 +163,8 @@ public class TimelineSlider extends ModelPanel {
 		
 		
 		// draw the area for the central "thumb".
-		int lx=scale.toInt(window().start);
-		int rx=scale.toInt(window().end);
+		int lx=scale.toInt(getWindow().start);
+		int rx=scale.toInt(getWindow().end);
 		g.setColor(change==Modify.POSITION ? new Color(255,255,120) : new Color(255,245,200));
 		positionRect.setBounds(lx,0,rx-lx,h);
 		g.fill(positionRect);		

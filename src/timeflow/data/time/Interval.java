@@ -3,13 +3,14 @@ package timeflow.data.time;
 import java.util.*;
 
 public class Interval {
-	public long start;
-	public long end;
+	public final long start;
+	public final long end;
 	
 	public Interval(long start, long end)
 	{
-		this.start=start;
-		this.end=end;
+        // Sanity check: make sure start <= end
+		this.start = Math.min(start, end);
+		this.end = Math.max(start, end);
 	}
 	
 	public Interval copy()
@@ -35,45 +36,29 @@ public class Interval {
 	
 	public Interval subinterval(double startFraction, double endFraction)
 	{
-		return new Interval((long)(start+startFraction*length()),
-				            (long)(start+endFraction*length()));
+        long length = Math.max(length(), 1);
+		return new Interval((long)(start + startFraction * length),
+				            (long)(start + endFraction * length));
 	}
 	
-	public void setTo(long start, long end)
+	public Interval setTo(long start, long end)
 	{
-		this.start=start;
-		this.end=end;
+        return new Interval(start, end);
 	}
 	
-	public void setTo(Interval t)
+	public Interval include(long time)
 	{
-		start=t.start;
-		end=t.end;
+        return new Interval(Math.min(start, time), Math.max(end, time));
 	}
 	
-	public void include(long time)
-	{
-		start=Math.min(start, time);
-		end=Math.max(end, time);
+	public Interval expand(long amount)
+    {
+        return new Interval(start - amount, end + amount);
 	}
 	
-	public void include(Interval t)
+	public Interval add(long amount)
 	{
-		include(t.start);
-		include(t.end);
-	}
-	
-	public void expand(long amount)
-	{
-		start-=amount;
-		end+=amount;
-	}
-	
-	
-	public void add(long amount)
-	{
-		start+=amount;
-		end+=amount;
+        return new Interval(start + amount, end + amount);
 	}
 	
 	public long length()
@@ -81,26 +66,26 @@ public class Interval {
 		return end-start;
 	}
 	
-	public void translateTo(long newStart)
+	public Interval translateTo(long newStart)
 	{
-		add(newStart-start);
+		return add(newStart-start);
 	}
 	
 	public Interval intersection(Interval i)
 	{
-		start=Math.max(i.start, start);
-		end=Math.min(i.end, end);
-		return this;
+		return new Interval(Math.max(i.start, start), Math.min(i.end, end));
 	}
 	
-	public void clampInside(Interval container)
+	public Interval clampInside(Interval container)
 	{
 		if (length()>container.length())
 			throw new IllegalArgumentException("Containing interval too small: "+container+" < "+this);
 		if (start>=container.start && end<=container.end)
-			return;
-		add(Math.max(0, container.start-start));
-		add(Math.min(0, container.end-end));
+			return this;
+
+        return
+            this.add(Math.max(0, container.start-start))
+            .add(Math.min(0, container.end-end));
 	}
 	
 	public String toString()

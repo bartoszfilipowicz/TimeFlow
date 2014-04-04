@@ -76,15 +76,21 @@ public class TimelineVisuals {
 		// add a little bit to the right so we can see labels...
 		ActDB db=getModel().getDB();
 		Field endField=db.getField(VirtualField.END);
-		Interval i=null;
+		Interval i;
 		if (endField==null)
+        {
 			i=DBUtils.range(acts, VirtualField.START);
-		else 
+        }
+		else
+        {
 			i=DBUtils.range(acts, new Field[] {db.getField(VirtualField.START), endField});
+        }
+
 		if (i.length()==0)
 		{
-			i.expand(globalInterval.length()/20);
+			i = i.expand(globalInterval.length()/20);
 		}
+
 		i=i.subinterval(-.05,1.1);
 		i.intersection(globalInterval);
 		return i;
@@ -126,7 +132,11 @@ public class TimelineVisuals {
 	{
 		return timeScale.getInterval();
 	}
-	
+
+    public void setViewInterval(Interval interval)
+   	{
+        timeScale.setInterval(interval);
+   	}
 	
 	public java.util.List<VisualAct> getVisualActs()
 	{
@@ -166,7 +176,7 @@ public class TimelineVisuals {
 		Interval v=model.getViewInterval();
 		if (v!=null && v.start!=timeScale.getInterval().start)
 		{
-			timeScale.getInterval().translateTo(v.start);
+			timeScale.setInterval(timeScale.getInterval().translateTo(v.start));
 		}
 		updateVisuals();
 	}

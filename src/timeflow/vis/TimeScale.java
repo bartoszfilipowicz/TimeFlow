@@ -20,6 +20,11 @@ public class TimeScale {
 	{
 		return interval;
 	}
+
+    public void setInterval(Interval interval)
+    {
+        this.interval = interval;
+    }
 	
 	public void setNumberRange(double low, double high)
 	{
@@ -34,9 +39,8 @@ public class TimeScale {
 	
 	public void setDateRange(long first, long last)
 	{	
-		interval.setTo(first, last);
+        interval = interval.setTo(first, last);
 	}
-
 	
 	public boolean containsDate(long date)
 	{
@@ -90,5 +94,4 @@ public class TimeScale {
 	public void setHigh(double high) {
 		this.high = high;
 	}
-	
 }
