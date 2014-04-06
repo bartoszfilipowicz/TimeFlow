@@ -173,7 +173,13 @@ public class ArrayDB implements ActDB {
 		return data.get(i);
 	}
 
-	@Override
+    @Override
+    public void clear()
+    {
+        data.clear();
+    }
+
+    @Override
 	public int size() {
 		return data.size();
 	}

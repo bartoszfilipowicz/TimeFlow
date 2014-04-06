@@ -1,8 +1,8 @@
 package timeflow.data.db;
 
-import java.util.*;
-
 import timeflow.data.db.filter.ActFilter;
+
+import java.util.List;
 
 public interface ActDB extends Iterable<Act> {
 	
@@ -27,4 +27,9 @@ public interface ActDB extends Iterable<Act> {
 	public ActList all();
 	public int size();
 	public Act get(int i);
+
+    /**
+     * Clears all entries out of the database.
+     */
+    void clear();
 }
