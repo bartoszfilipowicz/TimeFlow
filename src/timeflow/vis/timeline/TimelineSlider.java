@@ -142,7 +142,7 @@ public class TimelineSlider extends ModelPanel {
 	@Override
 	public Dimension getPreferredSize()
 	{
-		return new Dimension(600,130);
+		return new Dimension(600,30);
 	}
 	
 	public void setMinRange(long minRange)
