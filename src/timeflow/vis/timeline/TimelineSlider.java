@@ -6,6 +6,7 @@ import timeflow.model.TFEvent;
 import timeflow.vis.TimeScale;
 import timeflow.vis.VisualAct;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -68,16 +69,51 @@ public class TimelineSlider extends ModelPanel
             @Override
             public void mouseClicked(MouseEvent e)
             {
+                Interval window = null;
+
                 if (e.getClickCount() == 1)
                 {
-                    long timeDiff = scale.spaceToTime(e.getX());
-                    Interval limits = visuals.getGlobalInterval();
-                    Interval window = getWindow();
+                    if (SwingUtilities.isLeftMouseButton(e))
+                    {
+                        // Left-click sets the center of the view interval
+                        long timeDiff = scale.spaceToTime(e.getX());
+                        Interval limits = visuals.getGlobalInterval();
+                        window = getWindow();
 
-                    window = window
-                        .translateTo(limits.start + timeDiff - window.length() / 2)
-                        .clampInside(limits);
+                        window = window
+                            .translateTo(limits.start + timeDiff - window.length() / 2)
+                            .clampInside(limits);
+                    }
+                    else if (SwingUtilities.isRightMouseButton(e))
+                    {
+                        // Zoom out a bit on right-click
+                        window = getWindow()
+                            .subinterval(-0.5, 1.5)
+                            .intersection(visuals.getGlobalInterval());
+                    }
+                    else if (SwingUtilities.isMiddleMouseButton(e))
+                    {
+                        // Zoom out 100%
+                        window = visuals.getGlobalInterval();
+                    }
+                }
+                else if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
+                {
+                    // Zoom in a bit on left double-click
+                    double mouseAdjustment = e.getX() / (double) getWidth();
 
+                    window = visuals.getViewInterval()
+                        .subinterval(-0.3 + mouseAdjustment, 0.3 + mouseAdjustment)
+                        .intersection(visuals.getGlobalInterval());
+
+                    if (window.length() < 1000)
+                    {
+                        window = window.expand(1000);
+                    }
+                }
+
+                if (window != null)
+                {
                     setWindow(window);
                     getModel().setViewInterval(window);
                     action.run();

@@ -405,32 +405,8 @@ public class TimelineView extends AbstractView {
                 }
             });
 
-			addMouseListener(new MouseAdapter() {
-
-				@Override
-				public void mouseClicked(MouseEvent e)
-                {
-                    if (e.getButton() == MouseEvent.BUTTON3)
-                    {
-                        // Zoom out a bit on right-click
-                        Interval zoom=visuals.getViewInterval().subinterval(-1, 2).intersection(visuals.getGlobalInterval());
-                        moveTime(zoom);
-                    }
-                    else if (e.getClickCount() == 2)
-                    {
-                        if (e.getButton() == MouseEvent.BUTTON1)
-                        {
-                            // Zoom in a bit
-                            moveTime(visuals.getViewInterval().subinterval(.333, .667));
-                        }
-                        else if (e.getButton() == MouseEvent.BUTTON3)
-                        {
-                            // Zoom out 100%
-                            moveTime(visuals.getGlobalInterval());
-                        }
-                    }
-				}
-
+			addMouseListener(new MouseAdapter()
+            {
 				@Override
 				public void mouseExited(MouseEvent e)
                 {
