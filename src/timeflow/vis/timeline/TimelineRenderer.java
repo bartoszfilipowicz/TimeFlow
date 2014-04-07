@@ -12,10 +12,16 @@ import timeflow.util.*;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 
-public class TimelineRenderer {
+public class TimelineRenderer
+{
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/timeline/Bundle");
 
 	private TimelineVisuals visuals;
 	private int dy;
@@ -48,9 +54,9 @@ public class TimelineRenderer {
 		
 		java.util.List<VisualAct> visualActs=visuals.getVisualActs();
 		
-		if (visualActs==null || visualActs.size()==0)
+		if (visualActs == null || visualActs.size() == 0)
 		{
-			g.drawString("No data",10,30);
+			g.drawString(bundle.getString("TimelineRenderer.noData"), 10, 30);
 			return;
 		}
 		
@@ -128,7 +134,10 @@ public class TimelineRenderer {
 				g.setColor(fg);
 				g.fillRoundRect(x1,barY,x2-x1-1,t.y1-barY, m, m);
 				
-				MouseoverLabel mouse=new MouseoverLabel(""+Math.round(num), "items",x1,barY,x2-x1-1,t.y1-barY);
+				MouseoverLabel mouse = new MouseoverLabel(
+                    MessageFormat.format(bundle.getString("TimelineRenderer.itemCount"), Math.round(num)),
+                    "", x1,barY,x2-x1-1,t.y1-barY);
+
 				objectLocations.add(mouse);
 			}
 		}

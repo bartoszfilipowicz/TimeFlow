@@ -11,8 +11,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.font.LineMetrics;
+import java.util.ResourceBundle;
 
-public class TimelineSlider extends ModelPanel {
+public class TimelineSlider extends ModelPanel
+{
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/timeline/Bundle");
 	
 	TimelineVisuals visuals;
 	Interval original;
@@ -175,7 +181,7 @@ public class TimelineSlider extends ModelPanel {
 		if (visuals.getModel()==null || visuals.getModel().getActs()==null)
 		{
 			g.setColor(Color.darkGray);
-			g.drawString("No data for timeline.", 5, 20);
+			g.drawString(bundle.getString("TimelineSlider.noData"), 5, 20);
 			return;
 		}
 		
@@ -264,8 +270,9 @@ public class TimelineSlider extends ModelPanel {
         {
             // Render the scale label
             g.setColor(Color.lightGray);
-            LineMetrics lineMetrics = g.getFont().getLineMetrics(" log10", g.getFontRenderContext());
-            g.drawString(" log10", 0, h - lineMetrics.getHeight());
+            String label = bundle.getString("TimelineSlider.log10Label");
+            LineMetrics lineMetrics = g.getFont().getLineMetrics(label, g.getFontRenderContext());
+            g.drawString(label, 0, h - lineMetrics.getHeight());
         }
 	}
 }

@@ -10,10 +10,17 @@ import timeflow.util.ColorUtils;
 import timeflow.vis.timeline.TimelineTrack;
 
 import java.awt.*;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 public class VisualAct implements Comparable 
 {
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/Bundle");
+
 	Color color;
 	String label;
 	String mouseOver;
@@ -235,12 +242,11 @@ public class VisualAct implements Comparable
 			if (VisualAct.this instanceof GroupVisualAct)
 			{
 				GroupVisualAct gv=(GroupVisualAct)VisualAct.this;
-				labels.add(gv.getNumActs()+"");
-				labels.add("items");
+				labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.itemCount"), gv.getNumActs()));
 				Field sizeField=db.getField(VirtualField.SIZE);
 				if (sizeField!=null)
 				{
-					labels.add("Total "+sizeField.getName());
+                    labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.totalLabel"), sizeField.getName()));
 					double t=((GroupVisualAct)(VisualAct.this)).total;
 					labels.add(Display.format(t));
 					numLines++;

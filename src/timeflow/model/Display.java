@@ -2,21 +2,26 @@ package timeflow.model;
 
 
 import timeflow.data.db.filter.ValueFilter;
-import timeflow.data.time.*;
+import timeflow.data.time.RoughTime;
 
-import java.awt.*;
-import java.util.*;
-import java.net.URI;
-import java.text.*;
 import javax.swing.*;
+import java.awt.*;
+import java.net.URI;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
 // to do: read from a properties file!
-public class Display {
-	
-	HashMap<String, String> strings=new HashMap<String, String>();
+public class Display
+{
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/model/Bundle");
+
 	HashMap<String, Integer> ints=new HashMap<String, Integer>();
 	HashMap<String, Color> colors=new HashMap<String, Color>();
-	HashMap<Class, String> classLabel=new HashMap<Class, String>();
 	Color fallback=new Color(0,53,153,128);
 	
 	String fontName="Verdana";
@@ -67,17 +72,6 @@ public class Display {
 
 	public Display()
 	{
-		
-		strings.put("other.label", "Other");
-		strings.put("null.label", "[none]");
-		
-		classLabel.put(RoughTime.class, "Date/Time");
-		classLabel.put(String.class, "Text");
-		classLabel.put(Number.class, "Number");
-		classLabel.put(Double.class, "Number");
-		classLabel.put(Integer.class, "Number");
-		classLabel.put(String[].class, "List");
-		
 		colors.put("chart.background", Color.white);		
 		Color ui=new Color(240,240,240);
 		colors.put("splash.background", Color.white);
@@ -198,7 +192,7 @@ public class Display {
 	
 	public String getString(String s)
 	{
-		return strings.get(s);
+		return bundle.getString(s);
 	}
 	
 	public int getInt(String s)
@@ -344,7 +338,12 @@ public class Display {
 		if (model.getActs()==null || model.getActs().size()==0)
 		{
 			g.setColor(getColor("text.prominent"));
-			g.drawString(model.getDB()==null || model.getDB().size()==0 ? "Empty Database" :"No items found.", 10, 25);
+
+            String label = model.getDB() == null || model.getDB().size() == 0
+                ? bundle.getString("emptyDatabase")
+                : bundle.getString("noItemsFound");
+
+			g.drawString(label, 10, 25);
 			return true;
 		}
 		return false;			

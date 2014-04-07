@@ -1,15 +1,22 @@
 package timeflow.vis;
 
-import java.awt.*;
-import java.util.*;
-
-import timeflow.data.db.*;
-import timeflow.model.Display;
+import timeflow.data.db.Act;
+import timeflow.data.db.Field;
 import timeflow.model.VirtualField;
-import timeflow.util.*;
+import timeflow.util.DoubleBag;
+
+import java.awt.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 public class GroupVisualAct extends VisualAct
 {
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/Bundle");
+
 	private ArrayList<Act> group=new ArrayList<Act>();
 	private boolean mixed=false;
 	private DoubleBag<Color> colorBag;
@@ -32,7 +39,7 @@ public class GroupVisualAct extends VisualAct
 		this.spaceToRight=proto.spaceToRight;
 		this.start=proto.start;
 		this.group=new ArrayList<Act>();
-		this.label="Group of "+n+" events";
+		this.label = MessageFormat.format(bundle.getString("GroupVisualAct.label"), n);
 		this.mouseOver=this.label;
 		this.colorBag=new DoubleBag<Color>();
 		Field sizeField=act.getDB().getField(VirtualField.SIZE);
