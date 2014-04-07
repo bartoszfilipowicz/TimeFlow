@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.font.LineMetrics;
 
 public class TimelineSlider extends ModelPanel {
 	
@@ -141,7 +142,7 @@ public class TimelineSlider extends ModelPanel {
 	@Override
 	public Dimension getPreferredSize()
 	{
-		return new Dimension(600,30);
+		return new Dimension(600,130);
 	}
 	
 	public void setMinRange(long minRange)
@@ -209,7 +210,8 @@ public class TimelineSlider extends ModelPanel {
 				mostInSlot=Math.max(mostInSlot, slots[s]);
 			}
 		}
-		if (mostInSlot>30)
+
+		if (mostInSlot > 30)
 		{
             double logMax = Math.log10(mostInSlot);
 
@@ -257,5 +259,13 @@ public class TimelineSlider extends ModelPanel {
 		endRect.setBounds(positionRect.x+positionRect.width,1,ew,h-2);
 		g.setColor(change==Modify.END ? sideMouse : sidePlain);
 		g.fill(endRect);
+
+        if (mostInSlot > 30)
+        {
+            // Render the scale label
+            g.setColor(Color.lightGray);
+            LineMetrics lineMetrics = g.getFont().getLineMetrics(" log10", g.getFontRenderContext());
+            g.drawString(" log10", 0, h - lineMetrics.getHeight());
+        }
 	}
 }
