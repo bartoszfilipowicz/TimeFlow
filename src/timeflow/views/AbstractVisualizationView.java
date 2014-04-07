@@ -258,7 +258,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
 		return false;
 	}
 	
-	protected Mouseover find(Point p)
+	public Mouseover find(Point p)
 	{
 		for (Mouseover o: objectLocations)
 			if (o.contains(mouse))
