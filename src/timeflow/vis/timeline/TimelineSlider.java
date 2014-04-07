@@ -58,11 +58,32 @@ public class TimelineSlider extends ModelPanel {
 				repaint();
 			}
 
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if (e.getClickCount() == 1)
+                {
+                    long timeDiff = scale.spaceToTime(e.getX());
+                    Interval limits = visuals.getGlobalInterval();
+                    Interval window = getWindow();
+
+                    window = window
+                        .translateTo(limits.start + timeDiff - window.length() / 2)
+                        .clampInside(limits);
+
+                    setWindow(window);
+                    getModel().setViewInterval(window);
+                    action.run();
+                    repaint();
+                }
+            }
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				change=Modify.NONE;
 				repaint();
 			}});
+
 		addMouseMotionListener(new MouseMotionAdapter() {
 
 			@Override
