@@ -76,37 +76,39 @@ public class VisualAct implements Comparable
 		}
 
 	}
-	
+
+    // TODO: what is up with all these magic numbers??
 	public Mouseover draw(Graphics2D g, Rectangle maxFill, Rectangle bounds, 
 			                   Display display, boolean text, boolean showDuration)
 	{
 		if (!isVisible())
+        {
 			return null;
+        }
 
 		if (x>bounds.x+bounds.width && (end==null || endX>bounds.x+bounds.width) || 
-			x<bounds.x-200 && (end==null || endX<bounds.x-200)) 
+			x<bounds.x-200 && (end==null || endX<bounds.x-200))
+        {
 			return null;
+        }
 		
 		g.setFont(display.plain());
-		
-		int r=getDotR();
-		if (r<=0)
-			r=1;
-		if (r>30)
-			r=30;
-		int ox=text ? x-2*r : x;
 
-		draw(g,ox,y-2,r,maxFill,showDuration);
+        // Limit the radius to 1 - 30
+		int radius = Math.min(Math.max(getDotR(), 1), 30);
 
-		
+        int ox = text ? x - 2 * radius : x;
+		draw(g, ox, y - 2, radius, maxFill, showDuration);
+
 		if (!text)
 		{
-			return new VisualActMouseover(ox-2, y-r-4, 4+2*r, 4+2*r);
+			return new VisualActMouseover(ox-2, y-radius-4, 4+2*radius, 4+2*radius);
 		}
 					
-		int labelSpace=getSpaceToRight()-12;
-		int sw=0;
-		if (labelSpace>50)
+		int labelSpace = getSpaceToRight() - 12;
+		int stringWidth = 0;
+		int stringHeight = 0;
+		if (labelSpace > 50)
 		{
 			String s=display.format(getLabel(), labelSpace/8, true);
 			int n=s.indexOf(' ');
@@ -124,10 +126,16 @@ public class VisualAct implements Comparable
 				g.setColor(c);
 				g.drawString(s.substring(n),tx+display.plainFontMetrics().stringWidth(first),ty);
 			}
-			sw=display.plainFontMetrics().stringWidth(s);
+			stringWidth = display.plainFontMetrics().stringWidth(s) + 11;
+			stringHeight = display.plainFontMetrics().getHeight();
 		}
-		
-		return new VisualActMouseover(x-3-2*r, y-r-8, 14+sw, r+13+2*r);
+
+        int vx = x - 3 - 2 * radius;
+        int vy = y - 3 - Math.max(radius, stringHeight / 2);
+        int width = 2 * radius + 3 + stringWidth;
+        int height = 4 + Math.max(2 * radius, stringHeight);
+
+		return new VisualActMouseover(vx, vy, width, height);
 	}
 	
 	
