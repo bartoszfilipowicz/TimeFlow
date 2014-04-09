@@ -78,10 +78,15 @@ public class Interval {
 	
 	public Interval clampInside(Interval container)
 	{
-		if (length()>container.length())
+		if (length() >= container.length())
+        {
 			throw new IllegalArgumentException("Containing interval too small: "+container+" < "+this);
-		if (start>=container.start && end<=container.end)
+        }
+
+		if (start >= container.start && end <= container.end)
+        {
 			return this;
+        }
 
         return
             this.add(Math.max(0, container.start-start))

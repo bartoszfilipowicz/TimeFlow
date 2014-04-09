@@ -153,8 +153,12 @@ public class TimelineSlider extends ModelPanel
                         window = getWindow();
 
                         window = window
-                            .translateTo(limits.start + timeDiff - window.length() / 2)
-                            .clampInside(limits);
+                            .translateTo(limits.start + timeDiff - window.length() / 2);
+
+                        if (limits.length() > 1000)
+                        {
+                            window.clampInside(limits);
+                        }
                     }
                     else if (SwingUtilities.isRightMouseButton(e))
                     {
