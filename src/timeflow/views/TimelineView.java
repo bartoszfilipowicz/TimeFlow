@@ -370,9 +370,9 @@ public class TimelineView extends AbstractView {
                             moveTime(zoom);
                         }
                     }
-                    else
+                    else if ((e.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK)
                     {
-                        // Scrolling...
+                        // Horizontal scrolling...
 
                         long start = visuals.getViewInterval().start;
                         long length = Math.max(visuals.getViewInterval().length(), 1000);
@@ -401,6 +401,14 @@ public class TimelineView extends AbstractView {
                         }
 
                         moveTime(scroll);
+                    }
+                    else
+                    {
+                        // Vertical scrolling...
+                        JScrollBar scrollBar = TimelineView.this.scroller.bar;
+                        int value = scrollBar.getValue();
+                        value += e.getWheelRotation() * 32;
+                        scrollBar.setValue(value);
                     }
                 }
             });

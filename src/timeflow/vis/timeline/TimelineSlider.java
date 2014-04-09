@@ -8,9 +8,7 @@ import timeflow.vis.VisualAct;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.awt.font.LineMetrics;
 import java.util.ResourceBundle;
 
@@ -45,7 +43,81 @@ public class TimelineSlider extends ModelPanel
 		
 		this.minRange=minRange;
 		this.visuals=visuals;
-		
+
+        addMouseWheelListener(new MouseWheelListener()
+        {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e)
+            {
+                Interval window = null;
+
+                if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) == InputEvent.CTRL_DOWN_MASK)
+                {
+                    // Zooming...
+
+                    if (e.getWheelRotation() > 0)
+                    {
+                        // Zoom out
+                        window = visuals.getViewInterval()
+                            .subinterval(-0.5, 1.5)
+                            .intersection(visuals.getGlobalInterval());
+                    }
+                    else
+                    {
+                        // Zoom in
+                        double mouseAdjustment = e.getX() / (double) getWidth();
+
+                        window = visuals.getViewInterval()
+                            .subinterval(-0.3 + mouseAdjustment, 0.3 + mouseAdjustment)
+                            .intersection(visuals.getGlobalInterval());
+
+                        if (window.length() < 1000)
+                        {
+                            window = window.expand(1000);
+                        }
+                    }
+                }
+                else
+                {
+                    // Horizontal Scrolling...
+
+                    long start = visuals.getViewInterval().start;
+                    long length = Math.max(visuals.getViewInterval().length(), 1000);
+
+                    long adjustment = e.getWheelRotation() * length / 5;
+
+                    window = visuals.getViewInterval()
+                        .translateTo(start + adjustment)
+                        .intersection(visuals.getGlobalInterval());
+
+                    // If the scroll bumps up against the edge of the slider just move it to the global 'start' or 'end'
+                    if (window.length() != length)
+                    {
+                        if (e.getWheelRotation() < 0)
+                        {
+                            window = new Interval(visuals.getGlobalInterval().start,
+                                                  visuals.getGlobalInterval().start + length)
+                                .intersection(visuals.getGlobalInterval());
+                        }
+                        else
+                        {
+                            window = new Interval(visuals.getGlobalInterval().end - length,
+                                                  visuals.getGlobalInterval().end)
+                                .intersection(visuals.getGlobalInterval());
+                        }
+                    }
+                }
+
+                if (window != null)
+                {
+                    setWindow(window);
+                    getModel().setViewInterval(window);
+                    action.run();
+                    repaint();
+                }
+            }
+        });
+
 		addMouseListener(new MouseAdapter() {
 
 			@Override
