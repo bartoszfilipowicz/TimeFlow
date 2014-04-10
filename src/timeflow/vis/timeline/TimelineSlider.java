@@ -157,7 +157,7 @@ public class TimelineSlider extends ModelPanel
 
                         if (limits.length() > 1000)
                         {
-                            window.clampInside(limits);
+                            window = window.clampInside(limits);
                         }
                     }
                     else if (SwingUtilities.isRightMouseButton(e))

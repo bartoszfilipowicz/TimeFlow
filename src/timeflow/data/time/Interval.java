@@ -78,7 +78,7 @@ public class Interval {
 	
 	public Interval clampInside(Interval container)
 	{
-		if (length() >= container.length())
+		if (length() > container.length())
         {
 			throw new IllegalArgumentException("Containing interval too small: "+container+" < "+this);
         }
