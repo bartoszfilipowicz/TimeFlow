@@ -1,16 +1,16 @@
 package timeflow.vis;
 
 
+import java.awt.Graphics2D;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
+
 import timeflow.data.db.Act;
 import timeflow.data.db.ActDB;
 import timeflow.data.db.Field;
 import timeflow.model.Display;
 import timeflow.model.VirtualField;
-
-import java.awt.*;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
 
 /**
  * A mouse over for a visual act.
@@ -35,36 +35,36 @@ public class VisualActMouseover extends Mouseover
     {
         super.draw(g, maxW, maxH, display);
         Act a = visualAct.getAct();
-        ActDB db=a.getDB();
-        java.util.List<Field> fields=db.getFields();
-        ArrayList labels=new ArrayList();
-        int charWidth=40;
-        int numLines=1;
+        ActDB db = a.getDB();
+        java.util.List<Field> fields = db.getFields();
+        ArrayList labels = new ArrayList();
+        int charWidth = 40;
+        int numLines = 1;
         if (visualAct instanceof GroupVisualAct)
         {
-            GroupVisualAct gv=(GroupVisualAct)visualAct;
+            GroupVisualAct gv = (GroupVisualAct) visualAct;
             labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.itemCount"), gv.getNumActs()));
-            Field sizeField=db.getField(VirtualField.SIZE);
-            if (sizeField!=null)
+            Field sizeField = db.getField(VirtualField.SIZE);
+            if (sizeField != null)
             {
                 labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.totalLabel"), sizeField.getName()));
-                double t=((GroupVisualAct)(visualAct)).total;
+                double t = ((GroupVisualAct) (visualAct)).total;
                 labels.add(Display.format(t));
                 numLines++;
             }
         }
         else
         {
-            for (Field f: fields)
+            for (Field f : fields)
             {
                 labels.add(f.getName());
-                Object val=a.get(f);
-                String valString=display.toString(val);
-                if (f.getName().length()+valString.length()+2>charWidth)
+                Object val = a.get(f);
+                String valString = display.toString(val);
+                if (f.getName().length() + valString.length() + 2 > charWidth)
                 {
-                    ArrayList<String> lines=Display.breakLines(valString, charWidth, 2+f.getName().length());
+                    ArrayList<String> lines = Display.breakLines(valString, charWidth, 2 + f.getName().length());
                     labels.add(lines);
-                    numLines+=lines.size()+1;
+                    numLines += lines.size() + 1;
                 }
                 else
                 {

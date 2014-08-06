@@ -5,48 +5,48 @@ import java.util.Objects;
 
 public class Field
 {
-	private String name;
-	private Class type;
-	int index;
-	private int recommendedSize = -1;
+    int index;
+    private String name;
+    private Class type;
+    private int recommendedSize = -1;
 
-	public Field(String name, Class type)
-	{
-		this.name=name;
-		this.type=type;
-	}
-
-	public Field(String name, Class type, int recommendedSize)
-	{
-		this.name=name;
-		this.type=type;
-		this.recommendedSize=recommendedSize;
-	}
-
-	public int getRecommendedSize()
+    public Field(String name, Class type)
     {
-		return recommendedSize;
-	}
+        this.name = name;
+        this.type = type;
+    }
 
-	public void setRecommendedSize(int recommendedSize)
+    public Field(String name, Class type, int recommendedSize)
     {
-		this.recommendedSize = recommendedSize;
-	}
+        this.name = name;
+        this.type = type;
+        this.recommendedSize = recommendedSize;
+    }
 
-	void setName(String name)
-	{
-		this.name=name;
-	}
+    public int getRecommendedSize()
+    {
+        return recommendedSize;
+    }
 
-	public String getName()
-	{
-		return name;
-	}
+    public void setRecommendedSize(int recommendedSize)
+    {
+        this.recommendedSize = recommendedSize;
+    }
 
-	public Class getType()
-	{
-		return type;
-	}
+    public String getName()
+    {
+        return name;
+    }
+
+    void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public Class getType()
+    {
+        return type;
+    }
 
     @Override
     public int hashCode()
@@ -70,8 +70,8 @@ public class Field
     }
 
     @Override
-	public String toString()
-	{
-		return "[Field: name='"+name+"', type="+type+", index="+index+"]";
-	}
+    public String toString()
+    {
+        return "[Field: name='" + name + "', type=" + type + ", index=" + index + "]";
+    }
 }

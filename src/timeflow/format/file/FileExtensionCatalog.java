@@ -8,11 +8,12 @@ package timeflow.format.file;
 // timelines, but we have removed it from this release to simplify
 // both the application and because it would mean redistributing additional
 // third-party libraries.
-public class FileExtensionCatalog {
+public class FileExtensionCatalog
+{
 
-	public static Import get(String fileName)
-	{
-		/*
+    public static Import get(String fileName)
+    {
+        /*
 		// not in this release...
 		// but contact us if you'd like to see this.
 		// we took out the SIMILE import material as too "techie"
@@ -23,6 +24,6 @@ public class FileExtensionCatalog {
 		if (fileName.endsWith("json"))
 			return new SimileJSONFormat();
 			*/
-		return new TimeflowFormat();
-	}
+        return new TimeflowFormat();
+    }
 }

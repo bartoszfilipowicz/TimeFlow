@@ -1,38 +1,52 @@
 package timeflow.data.db.filter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import timeflow.data.db.Act;
 
-public class OrFilter extends ActFilter {
-	private List<ActFilter> filters=new ArrayList<ActFilter>();
-	
-	public OrFilter(ActFilter a, ActFilter b)
-	{
-		or(a);
-		or(b);
-	}
-	
-	public void or(ActFilter a)
-	{
-		filters.add(a);
-	}
+public class OrFilter extends ActFilter
+{
+    private List<ActFilter> filters = new ArrayList<ActFilter>();
 
-	@Override
-	public boolean accept(Act act) {
-		for (ActFilter f: filters)
-			if (f.accept(act))
-				return true;
-		return false;
-	}
-	public int countFilters()
-	{
-		int sum=0;
-		if (filters!=null)
-			for (ActFilter f: filters)
-				if (f!=null)
-					sum+=f.countFilters();
-		return sum;
-	}
-	
+    public OrFilter(ActFilter a, ActFilter b)
+    {
+        or(a);
+        or(b);
+    }
+
+    public void or(ActFilter a)
+    {
+        filters.add(a);
+    }
+
+    @Override
+    public boolean accept(Act act)
+    {
+        for (ActFilter f : filters)
+        {
+            if (f.accept(act))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int countFilters()
+    {
+        int sum = 0;
+        if (filters != null)
+        {
+            for (ActFilter f : filters)
+            {
+                if (f != null)
+                {
+                    sum += f.countFilters();
+                }
+            }
+        }
+        return sum;
+    }
+
 }
