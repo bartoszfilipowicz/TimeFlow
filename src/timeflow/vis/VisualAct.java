@@ -1,26 +1,15 @@
 package timeflow.vis;
 
 import timeflow.data.db.Act;
-import timeflow.data.db.ActDB;
-import timeflow.data.db.Field;
 import timeflow.data.time.RoughTime;
 import timeflow.model.Display;
-import timeflow.model.VirtualField;
 import timeflow.util.ColorUtils;
 import timeflow.vis.timeline.TimelineTrack;
 
 import java.awt.*;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
 
 public class VisualAct implements Comparable 
 {
-    /**
-     * The resources.
-     */
-    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/Bundle");
-
 	Color color;
 	String label;
 	String mouseOver;
@@ -102,7 +91,7 @@ public class VisualAct implements Comparable
 
 		if (!text)
 		{
-			return new VisualActMouseover(ox-2, y-radius-4, 4+2*radius, 4+2*radius);
+			return new VisualActMouseover(this, ox-2, y-radius-4, 4+2*radius, 4+2*radius);
 		}
 					
 		int labelSpace = getSpaceToRight() - 12;
@@ -135,7 +124,7 @@ public class VisualAct implements Comparable
         int width = 2 * radius + 3 + stringWidth;
         int height = 4 + Math.max(2 * radius, stringHeight);
 
-		return new VisualActMouseover(vx, vy, width, height);
+		return new VisualActMouseover(this, vx, vy, width, height);
 	}
 	
 	
@@ -229,58 +218,5 @@ public class VisualAct implements Comparable
 	public int compareTo(Object o) {
 		return RoughTime.compare(start, ((VisualAct)o).start);
 		//start.compareTo(((VisualAct)o).start);
-	}
-	
-	class VisualActMouseover extends Mouseover
-	{
-		
-		public VisualActMouseover(int x, int y, int w, int h) {
-			super(VisualAct.this, x, y, w, h);
-		}
-
-		public void draw(Graphics2D g, int maxW, int maxH, Display display)
-		{
-			super.draw(g, maxW, maxH, display);
-			Act a=getAct();
-			ActDB db=a.getDB();
-			java.util.List<Field> fields=db.getFields();
-			ArrayList labels=new ArrayList();
-			int charWidth=40;
-			int numLines=1;
-			if (VisualAct.this instanceof GroupVisualAct)
-			{
-				GroupVisualAct gv=(GroupVisualAct)VisualAct.this;
-				labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.itemCount"), gv.getNumActs()));
-				Field sizeField=db.getField(VirtualField.SIZE);
-				if (sizeField!=null)
-				{
-                    labels.add(MessageFormat.format(bundle.getString("GroupVisualAct.totalLabel"), sizeField.getName()));
-					double t=((GroupVisualAct)(VisualAct.this)).total;
-					labels.add(Display.format(t));
-					numLines++;
-				}
-			}
-			else
-			{
-				for (Field f: fields)
-				{
-					labels.add(f.getName());
-					Object val=a.get(f);
-					String valString=display.toString(val);
-					if (f.getName().length()+valString.length()+2>charWidth)
-					{
-						ArrayList<String> lines=Display.breakLines(valString, charWidth, 2+f.getName().length());
-						labels.add(lines);
-						numLines+=lines.size()+1;
-					}
-					else
-					{
-						labels.add(valString);
-						numLines++;
-					}
-				}		
-			}
-			draw(g, maxW, maxH, display, labels, numLines);
-		}
 	}
 }
