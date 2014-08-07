@@ -1,5 +1,6 @@
 package timeflow.views;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -15,10 +16,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.CellRendererPane;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -26,16 +33,25 @@ import javax.swing.event.EventListenerList;
 
 import timeflow.app.ui.EditRecordPanel;
 import timeflow.data.db.Act;
+import timeflow.data.db.ActDB;
 import timeflow.data.db.Field;
 import timeflow.data.time.RoughTime;
 import timeflow.model.Display;
 import timeflow.model.TFModel;
+import timeflow.model.VirtualField;
+import timeflow.vis.GroupVisualAct;
 import timeflow.vis.Mouseover;
+import timeflow.vis.MouseoverLabel;
 import timeflow.vis.VisualAct;
-
+import timeflow.vis.VisualActMouseover;
 
 public abstract class AbstractVisualizationView extends JPanel implements ItemSelectable
 {
+    /**
+     * The resources.
+     */
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/Bundle");
+
     Image buffer;
     Graphics2D graphics;
     Point mouse = new Point(-10000, 0), firstMouse = new Point();
@@ -48,9 +64,22 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
     boolean allowPopupMenu = true;
     EventListenerList listenerList = new EventListenerList();
 
+    /**
+     * The cell render pane used to render the custom 'tool tip'.
+     */
+    protected final CellRendererPane renderPane;
+
+    /**
+     * The custom tool tip rendered next to the mouse when hovering over nodes.
+     */
+    protected final ToolTip toolTip = new ToolTip();
+
     public AbstractVisualizationView(TFModel model)
     {
         this.model = model;
+
+        renderPane = new CellRendererPane();
+        add(renderPane);
 
         // deal with mouseovers.
         addMouseMotionListener(new MouseMotionListener()
@@ -70,7 +99,6 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
                 repaint();
             }
         });
-
 
         final JPopupMenu popup = new JPopupMenu();
         final JMenuItem edit = new JMenuItem("Edit");
@@ -110,6 +138,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         // deal with right-click.
         addMouseListener(new MouseAdapter()
         {
+            @Override
             public void mouseClicked(MouseEvent e)
             {
                 Point p = new Point(e.getX(), e.getY());
@@ -128,11 +157,13 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
                 notifyItemListeners();
             }
 
+            @Override
             public void mousePressed(MouseEvent e)
             {
                 pop(e);
             }
 
+            @Override
             public void mouseReleased(MouseEvent e)
             {
                 pop(e);
@@ -306,6 +337,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         return null;
     }
 
+    @Override
     public final void paintComponent(Graphics g1)
     {
         Graphics2D g = (Graphics2D) g1;
@@ -320,6 +352,64 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         if (highlight != null)
         {
             highlight.draw(g, w, h, getModel().getDisplay());
+
+            updateToolTip(getModel().getDisplay(), highlight);
+
+            Dimension tooltipSize = toolTip.getPreferredSize();
+            renderPane.paintComponent(g, toolTip, this, highlight.x, highlight.y, tooltipSize.width, tooltipSize.height, true);
         }
     }
-}		
+
+    /**
+     * Called to update the tool-tip content.
+     *
+     * @param display the display settings.
+     * @param highlight the current highlight.
+     */
+    protected void updateToolTip(Display display, Mouseover highlight)
+    {
+        Map<String, Object> fieldValueMap = new LinkedHashMap<String, Object>();
+
+        if (highlight instanceof MouseoverLabel)
+        {
+            MouseoverLabel mouseoverLabel = (MouseoverLabel) highlight;
+            fieldValueMap.put(mouseoverLabel.label1, mouseoverLabel.label2);
+        }
+        else if (highlight instanceof VisualActMouseover)
+        {
+            VisualActMouseover visualActMouseover = (VisualActMouseover) highlight;
+            VisualAct visualAct = visualActMouseover.visualAct;
+            Act act = visualAct.getAct();
+            ActDB db = act.getDB();
+            List<Field> fields = db.getFields();
+
+            if (visualAct instanceof GroupVisualAct)
+            {
+                GroupVisualAct groupVisualAct = (GroupVisualAct) visualAct;
+                fieldValueMap.put(MessageFormat.format(bundle.getString("GroupVisualAct.itemCount"), groupVisualAct.getNumActs()), "");
+
+                Field sizeField = db.getField(VirtualField.SIZE);
+                if (sizeField != null)
+                {
+                    fieldValueMap.put(
+                        MessageFormat.format(bundle.getString("GroupVisualAct.totalLabel"), sizeField.getName()),
+                        Display.format(groupVisualAct.getTotal()));
+                }
+            }
+            else
+            {
+                for (Field field : fields)
+                {
+                    Object value = act.get(field);
+                    String displayString = display.toString(value);
+                    fieldValueMap.put(field.getName(), displayString);
+                }
+            }
+        }
+
+        if (!fieldValueMap.isEmpty())
+        {
+            toolTip.setContent(fieldValueMap, display);
+        }
+    }
+}

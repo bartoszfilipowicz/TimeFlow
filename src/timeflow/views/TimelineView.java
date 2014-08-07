@@ -41,7 +41,6 @@ import timeflow.vis.timeline.TimelineVisuals;
 
 public class TimelineView extends AbstractView
 {
-
     AxisRenderer grid;
     TimelineRenderer timeline;
     TimelineVisuals visuals;
@@ -80,7 +79,7 @@ public class TimelineView extends AbstractView
 
         controls = new JPanel();
         controls.setBackground(Color.white);
-        controls.setLayout(new BorderLayout());//new GridLayout(2,1));
+        controls.setLayout(new BorderLayout());
 
         // top part of grid: zoom buttons.
         ComponentCluster buttons = new ComponentCluster("Zoom");
@@ -154,6 +153,7 @@ public class TimelineView extends AbstractView
         controls.add(layoutPanel, BorderLayout.CENTER);
     }
 
+    @Override
     public JComponent _getControls()
     {
         return controls;
@@ -273,6 +273,7 @@ public class TimelineView extends AbstractView
             this.i2 = i2;
         }
 
+        @Override
         public void run()
         {
             int n = animationSteps;
@@ -525,6 +526,7 @@ public class TimelineView extends AbstractView
             });
         }
 
+        @Override
         public RoughTime getTime(Point p)
         {
             TimeScale scale = visuals.getTimeScale();
@@ -532,6 +534,7 @@ public class TimelineView extends AbstractView
             return new RoughTime(timestamp, TimeUnit.DAY);
         }
 
+        @Override
         protected void drawVisualization(Graphics2D g)
         {
             if (g == null)
@@ -546,6 +549,7 @@ public class TimelineView extends AbstractView
             grid.render(g, objectLocations);
         }
 
+        @Override
         protected boolean paintOnTop(Graphics2D g, int w, int h)
         {
             if (!mouseIsDown)
@@ -566,5 +570,4 @@ public class TimelineView extends AbstractView
             return true;
         }
     }
-
 }

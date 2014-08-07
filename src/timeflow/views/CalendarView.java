@@ -311,7 +311,6 @@ public class CalendarView extends AbstractView
 
     class CalendarPanel extends AbstractVisualizationView
     {
-
         CalendarPanel(TFModel model)
         {
             super(model);

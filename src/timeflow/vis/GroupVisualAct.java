@@ -63,6 +63,11 @@ public class GroupVisualAct extends VisualAct
         return numActs;
     }
 
+    public double getTotal()
+    {
+        return total;
+    }
+
     public void add(Act secondAct)
     {
         if (group == null)

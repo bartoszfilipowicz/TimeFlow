@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="swingx">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/swingx-action.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-beaninfo.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-common.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-graphics.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-painters.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/swingx-plaf.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
