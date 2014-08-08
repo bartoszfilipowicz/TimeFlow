@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -54,6 +55,13 @@ public class ToolTip extends RoundedPane
 
             Object value = entry.getValue();
             JComponent valueComponent;
+
+            if (value instanceof Supplier)
+            {
+                // Unwrap the supplied value
+                value = ((Supplier) value).get();
+            }
+
             if (value instanceof Image)
             {
                 valueComponent = new JLabel(new ImageIcon((Image) value));

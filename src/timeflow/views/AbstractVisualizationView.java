@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import javax.swing.CellRendererPane;
 import javax.swing.JMenuItem;
@@ -401,8 +402,16 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
                 for (Field field : fields)
                 {
                     Object value = act.get(field);
-                    String displayString = display.toString(value);
-                    fieldValueMap.put(field.getName(), displayString);
+
+                    if (value instanceof Image || value instanceof Supplier)
+                    {
+                        fieldValueMap.put(field.getName(), value);
+                    }
+                    else
+                    {
+                        String displayString = display.toString(value);
+                        fieldValueMap.put(field.getName(), displayString);
+                    }
                 }
             }
         }
