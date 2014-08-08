@@ -54,7 +54,7 @@ public class TimelineView extends AbstractView
     public TimelineView(TFModel model)
     {
         super(model);
-        visuals = new TimelineVisuals(model);
+        visuals = new TimelineVisuals(model, getComponentOrientation().isLeftToRight());
         grid = new AxisRenderer(visuals);
         timeline = new TimelineRenderer(visuals);
 
@@ -545,7 +545,7 @@ public class TimelineView extends AbstractView
             g.fillRect(0, 0, 2 * getSize().width, getSize().height);
             visuals.setBounds(0, 0, getSize().width, getSize().height);
             objectLocations = new ArrayList<Mouseover>();
-            timeline.render(g, objectLocations);
+            timeline.render(g, objectLocations, getComponentOrientation().isLeftToRight());
             grid.render(g, objectLocations);
         }
 

@@ -37,7 +37,7 @@ public class GroupVisualAct extends VisualAct
         this.x = proto.x;
         this.y = proto.y;
 
-        this.spaceToRight = proto.spaceToRight;
+        this.spaceNextTo = proto.spaceNextTo;
         this.start = proto.start;
         this.group = new ArrayList<Act>();
         this.label = MessageFormat.format(bundle.getString("GroupVisualAct.label"), n);

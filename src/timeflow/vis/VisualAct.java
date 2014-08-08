@@ -21,7 +21,7 @@ public class VisualAct implements Comparable
     TimelineTrack track;
     boolean visible;
     int x, y;
-    int spaceToRight;
+    int spaceNextTo;
     RoughTime start, end;
     int endX;
 
@@ -78,7 +78,7 @@ public class VisualAct implements Comparable
 
     // TODO: what is up with all these magic numbers??
     public Mouseover draw(Graphics2D g, Rectangle maxFill, Rectangle bounds,
-                          Display display, boolean text, boolean showDuration)
+                          Display display, boolean showText, boolean showDuration, boolean leftToRight)
     {
         if (!isVisible())
         {
@@ -96,42 +96,47 @@ public class VisualAct implements Comparable
         // Limit the radius to 1 - 30
         int radius = Math.min(Math.max(getDotR(), 1), 30);
 
-        int ox = text ? x - 2 * radius : x;
-        draw(g, ox, y - 2, radius, maxFill, showDuration);
+        int originX = showText ? x - 2 * radius : x;
+        draw(g, originX, y - 2, radius, maxFill, showDuration);
 
-        if (!text)
+        if (!showText)
         {
-            return new VisualActMouseover(this, ox - 2, y - radius - 4, 4 + 2 * radius, 4 + 2 * radius);
+            return new VisualActMouseover(this, originX - 2, y - radius - 4, 4 + 2 * radius, 4 + 2 * radius);
         }
 
-        int labelSpace = getSpaceToRight() - 12;
+        int textXInset = 5;
+        int labelSpace = getSpaceNextTo() - textXInset * 2;
         int stringWidth = 0;
         int stringHeight = 0;
+
         if (labelSpace > 50)
         {
-            String s = display.format(getLabel(), labelSpace / 8, true);
-            int n = s.indexOf(' ');
-            int tx = x + 5;
+            String text = display.format(getLabel(), labelSpace / display.plainFontMetrics().charWidth('m'), true);
+            stringWidth = display.plainFontMetrics().stringWidth(text);
+
+            int n = text.indexOf(' ');
+            int tx = leftToRight ? originX + textXInset : originX - stringWidth - textXInset;
             int ty = y + 4;
+
             if (n < 1)
             {
-                g.drawString(s, tx, ty);
+                g.drawString(text, tx, ty);
             }
             else
             {
-                String first = s.substring(0, n);
+                String first = text.substring(0, n);
                 g.drawString(first, tx, ty);
                 Color c = ColorUtils.interpolate(g.getColor(), Color.white, .33);
                 g.setColor(c);
-                g.drawString(s.substring(n), tx + display.plainFontMetrics().stringWidth(first), ty);
+                g.drawString(text.substring(n), tx + display.plainFontMetrics().stringWidth(first), ty);
             }
-            stringWidth = display.plainFontMetrics().stringWidth(s) + 11;
+
             stringHeight = display.plainFontMetrics().getHeight();
         }
 
-        int vx = x - 3 - 2 * radius;
+        int vx = leftToRight ? originX - textXInset : originX - stringWidth - 2 * textXInset;
         int vy = y - 3 - Math.max(radius, stringHeight / 2);
-        int width = 2 * radius + 3 + stringWidth;
+        int width = 2 * radius + 3 * textXInset + stringWidth;
         int height = 4 + Math.max(2 * radius, stringHeight);
 
         return new VisualActMouseover(this, vx, vy, width, height);
@@ -223,14 +228,14 @@ public class VisualAct implements Comparable
         this.track = track;
     }
 
-    public int getSpaceToRight()
+    public int getSpaceNextTo()
     {
-        return spaceToRight;
+        return spaceNextTo;
     }
 
-    public void setSpaceToRight(int spaceToRight)
+    public void setSpaceNextTo(int spaceNextTo)
     {
-        this.spaceToRight = spaceToRight;
+        this.spaceNextTo = spaceNextTo;
     }
 
     public int getEndX()

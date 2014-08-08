@@ -20,24 +20,19 @@ public class CalendarVisuals
     TFModel model;
     Rectangle bounds = new Rectangle();
     DrawStyle drawStyle = DrawStyle.ICON;
-
-    ;
     FitStyle fitStyle = FitStyle.LOOSE;
     private Layout layoutStyle = Layout.DAY;
 
-    ;
     public CalendarVisuals(TFModel model)
     {
         this.model = model;
         encoder = new VisualEncoder(model);
     }
 
-    public void render(Graphics2D g, Collection<Mouseover> objectLocations)
+    public void render(Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
     {
-        grid.render(g, model.getDisplay(), bounds, this, objectLocations);
+        grid.render(g, model.getDisplay(), bounds, this, objectLocations, leftToRight);
     }
-
-    ;
 
     public Interval getGlobalInterval()
     {

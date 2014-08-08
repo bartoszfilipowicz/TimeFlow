@@ -53,7 +53,7 @@ public class TimelineTrack implements Comparable
     }
 
     // top and height are in proportion of total height of frame.
-    void layout(double top, double height, TimelineVisuals visuals)
+    void layout(double top, double height, TimelineVisuals visuals, boolean leftToRight)
     {
         int n = visualActs.size();
         if (n == 0)
@@ -84,7 +84,7 @@ public class TimelineTrack implements Comparable
             {
                 continue;
             }
-            v.setSpaceToRight(1000);
+            v.setSpaceNextTo(1000);
 
             double num = visuals.getTimeScale().toNum(v.getStart().getTime());
             int x = (int) num;
@@ -102,7 +102,7 @@ public class TimelineTrack implements Comparable
             if (rights[cell] != null)
             {
                 int space = x - rights[cell].getX();
-                rights[cell].setSpaceToRight(space);
+                rights[cell].setSpaceNextTo(space); // TODO: RTL support
             }
             rights[cell] = v;
             if ((last != null && v.getStart().getTime() == last.getStart().getTime())

@@ -26,9 +26,7 @@ import timeflow.vis.VisualEncoder;
  */
 public class TimelineVisuals
 {
-
     ArrayList<TimelineTrack> trackList = new ArrayList<TimelineTrack>();
-    private Map<String, TimelineTrack> trackTable = new HashMap<String, TimelineTrack>();
     private TimeScale timeScale = new TimeScale();
     private Rectangle bounds = new Rectangle();
     private boolean frameChanged;
@@ -37,13 +35,15 @@ public class TimelineVisuals
     private Interval globalInterval;
     private Layout layoutStyle = Layout.LOOSE;
 
-    ;
     private VisualEncoder encoder;
     private TFModel model;
+    private boolean leftToRight;
     private int fullHeight;
-    public TimelineVisuals(TFModel model)
+
+    public TimelineVisuals(TFModel model, boolean leftToRight)
     {
         this.model = model;
+        this.leftToRight = leftToRight;
         encoder = new VisualEncoder(model);
     }
 
@@ -257,7 +257,7 @@ public class TimelineVisuals
         for (TimelineTrack t : trackList)
         {
             double height = Math.max(min, t.size() / (double) numShown);
-            t.layout(top, height, this);
+            t.layout(top, height, this, leftToRight);
             top += height;
         }
         fullHeight = (int) (top * bounds.height);
@@ -271,7 +271,7 @@ public class TimelineVisuals
         java.util.List<VisualAct> acts = encoder.apply();
 
         // now arrange on tracks
-        trackTable = new HashMap<String, TimelineTrack>();
+        Map<String, TimelineTrack> trackTable = new HashMap<String, TimelineTrack>();
         trackList = new ArrayList<TimelineTrack>();
         numShown = 0;
         for (VisualAct v : acts)

@@ -43,7 +43,7 @@ public class TimelineRenderer
         this.dy = dy;
     }
 
-    public void render(Graphics2D g, Collection<Mouseover> objectLocations)
+    public void render(Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
     {
         AffineTransform old = g.getTransform();
         g.setTransform(AffineTransform.getTranslateInstance(0, -dy));
@@ -99,7 +99,7 @@ public class TimelineRenderer
             {
                 for (VisualAct v : t.visualActs)
                 {
-                    Mouseover o = v.draw(g, null, bounds, display, true, true);
+                    Mouseover o = v.draw(g, null, bounds, display, true, true, leftToRight);
                     if (o != null)
                     {
                         o.y -= dy;
@@ -183,14 +183,18 @@ public class TimelineRenderer
                     }
 
                     // draw background.
-                    g.setColor(bg);
                     int sw = hugeFm.stringWidth(label);
-                    g.fillRect(0, t.y1 - 20, sw + 8, 19);
+                    int backgroundXInset = 8;
+                    int backgroundXOffset = leftToRight ? 0 : bounds.width - sw - backgroundXInset;
+                    g.setColor(bg);
+                    g.fillRect(backgroundXOffset, t.y1 - 20, sw + backgroundXInset, 19);
 
                     // draw foreground (actual label)
+                    int labelXInset = 2;
+                    int labelXOffset = leftToRight ? labelXInset : bounds.width - sw - labelXInset;
                     g.setFont(display.huge());
                     g.setColor(fg);
-                    g.drawString(label, 2, t.y1 - 5);
+                    g.drawString(label, labelXOffset, t.y1 - 5);
                 }
                 zebra = !zebra;
             }

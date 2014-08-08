@@ -144,7 +144,7 @@ public class Grid
     }
 
     void render(Graphics2D g, Display display, Rectangle screenBounds, CalendarVisuals visuals,
-                Collection<Mouseover> objectLocations)
+                Collection<Mouseover> objectLocations, boolean leftToRight)
     {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         int left = 110, right = 20;
@@ -352,9 +352,9 @@ public class Grid
                 int space = cellWidth - 20;
                 v.setX(x);
                 v.setY(y);
-                v.setSpaceToRight(space);
+                v.setSpaceNextTo(space); // TODO: RTL support
                 Mouseover o = v.draw(g, new Rectangle(cx + 1, cy + labelH + 1, cellWidth - 2, cellHeight - 2 - labelH),
-                                     bounds, display, shouldLabel, false);
+                                     bounds, display, shouldLabel, false, leftToRight);
                 if (o != null)
                 {
                     objectLocations.add(o);
