@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-import timeflow.model.Display;
-
 public class Mouseover extends Rectangle
 {
     public final Object thing;
@@ -16,7 +14,7 @@ public class Mouseover extends Rectangle
         this.thing = thing;
     }
 
-    public void draw(Graphics2D g, int maxW, int maxH, Display display)
+    public void draw(Graphics2D g)
     {
         g.setColor(new Color(0, 53, 153));
         g.setColor(new Color(255, 255, 0, 100));

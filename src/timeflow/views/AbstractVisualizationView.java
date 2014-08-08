@@ -352,12 +352,27 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         Mouseover highlight = find(mouse);
         if (highlight != null)
         {
-            highlight.draw(g, w, h, getModel().getDisplay());
+            highlight.draw(g);
 
             updateToolTip(getModel().getDisplay(), highlight);
 
-            Dimension tooltipSize = toolTip.getPreferredSize();
-            renderPane.paintComponent(g, toolTip, this, highlight.x, highlight.y, tooltipSize.width, tooltipSize.height, true);
+            Dimension toolTipPreferred = toolTip.getPreferredSize();
+            int toolTipWidth = toolTipPreferred.width;
+            int toolTipHeight = toolTipPreferred.height;
+            int toolTipY = mouse.y;
+            int cursorOffset = 16; // An offset to move the tool tip from under the mouse cursor
+            int toolTipX;
+
+            if (getComponentOrientation().isLeftToRight())
+            {
+                toolTipX = mouse.x + cursorOffset;
+            }
+            else
+            {
+                toolTipX = Math.max(0, mouse.x - toolTipWidth - cursorOffset);
+            }
+
+            renderPane.paintComponent(g, toolTip, this, toolTipX, toolTipY, toolTipWidth, toolTipHeight, true);
         }
     }
 
