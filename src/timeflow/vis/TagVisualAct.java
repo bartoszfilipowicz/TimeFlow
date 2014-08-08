@@ -31,7 +31,7 @@ public class TagVisualAct extends VisualAct
             return;
         }
 
-        Color[] c = colors == null || colors.length == 0 ? nullColors : colors;
+        Color[] c = colors.length == 0 ? nullColors : colors;
         int tx = ox - r;
         int side = 2 * r;
         for (int i = 0; i < c.length; i++)

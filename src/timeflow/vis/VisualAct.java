@@ -116,7 +116,7 @@ public class VisualAct implements Comparable<VisualAct>
             stringWidth = display.plainFontMetrics().stringWidth(text);
 
             int n = text.indexOf(' ');
-            int tx = leftToRight ? originX + textXInset : originX - stringWidth - textXInset;
+            int tx = leftToRight ? originX + 2 * radius + textXInset : originX - stringWidth - textXInset;
             int ty = y + 4;
 
             if (n < 1)
