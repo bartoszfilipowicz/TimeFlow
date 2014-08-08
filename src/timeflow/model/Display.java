@@ -9,13 +9,13 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.net.URI;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import sun.font.FontUtilities;
 import timeflow.data.db.filter.ValueFilter;
 import timeflow.data.time.RoughTime;
 
@@ -49,23 +49,21 @@ public class Display
     };
     HashMap<String, Integer> ints = new HashMap<String, Integer>();
     HashMap<String, Color> colors = new HashMap<String, Color>();
-    Color fallback = new Color(0, 53, 153, 128);
-    String fontName = "Verdana";
-    Font tinyFont = new Font(fontName, Font.BOLD, 9);
-    Font timeLabelFont = tinyFont;
-    FontMetrics timeLabelFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(timeLabelFont);
-    FontMetrics tinyFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(tinyFont);
-    Font smallFont = new Font(fontName, Font.PLAIN, 11);
-    Font boldFont = new Font(fontName, Font.BOLD, 12);
-    FontMetrics boldFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(boldFont);
-    Font hugeFont = new Font(fontName, Font.BOLD, 16);
-    FontMetrics hugeFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(hugeFont);
-    Font plainFont = UIManager.getFont("Label.font");
-    FontMetrics plainFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(plainFont);
-    Font bigFont = plainFont.deriveFont(Font.BOLD);
-    FontMetrics bigFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(bigFont);
     HashMap<String, Color> topColors = new HashMap<String, Color>();
     ValueFilter grayFilter;
+
+    final Font tinyFont;
+    final Font timeLabelFont;
+    final Font smallFont;
+    final Font boldFont;
+    final Font hugeFont;
+    final Font plainFont = UIManager.getFont("Label.font");
+    final Font bigFont = plainFont.deriveFont(Font.BOLD);
+    final FontMetrics timeLabelFontMetrics;
+    final FontMetrics tinyFontMetrics;
+    final FontMetrics boldFontMetrics;
+    final FontMetrics hugeFontMetrics;
+    final FontMetrics plainFontMetrics;
 
     public Display()
     {
@@ -88,6 +86,19 @@ public class Display
 
         ints.put("timeline.datelabel.height", 20);
         ints.put("timeline.item.height.min", 16);
+
+        Font baseFont = FontUtilities.getCompositeFontUIResource(new Font("Verdana", Font.PLAIN, 11));
+        tinyFont = baseFont.deriveFont(baseFont.getStyle() | Font.BOLD, 9);
+        smallFont = baseFont.deriveFont(11f);
+        boldFont = baseFont.deriveFont(baseFont.getStyle() | Font.BOLD, 12);
+        hugeFont= baseFont.deriveFont(baseFont.getStyle() | Font.BOLD, 16);
+        timeLabelFont = tinyFont;
+
+        timeLabelFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(timeLabelFont);
+        tinyFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(tinyFont);
+        boldFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(boldFont);
+        hugeFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(hugeFont);
+        plainFontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(plainFont);
     }
 
     public static void launchBrowser(String urlString)
@@ -116,7 +127,7 @@ public class Display
         {
             return "";
         }
-        StringBuffer b = new StringBuffer();
+        StringBuilder b = new StringBuilder();
         for (int i = 0; i < s.length; i++)
         {
             if (i > 0)
@@ -145,31 +156,6 @@ public class Display
     public static String format(double x)
     {
         return Math.abs(x) > 999 ? roundFormat.format(x) : df.format(x);
-    }
-
-    public static ArrayList<String> breakLines(String s, int lineChars, int firstOffset)
-    {
-        ArrayList<String> lines = new ArrayList<String>();
-        String[] words = s.split(" ");
-        String line = "";
-
-        for (int i = 0; i < words.length; i++)
-        {
-            // is the word just too, too long?
-            int n = words[i].length();
-            if (n > lineChars - 5)
-            {
-                words[i] = words[i].substring(0, lineChars / 2 - 2) + "..." + words[i].substring(n - lineChars / 2 + 2, n);
-            }
-            if (line.length() + words[i].length() > (lines.size() == 0 ? lineChars - firstOffset : lineChars))
-            {
-                lines.add(line);
-                line = "";
-            }
-            line += " " + words[i];
-        }
-        lines.add(line);
-        return lines;
     }
 
     public Font bold()
@@ -303,7 +289,7 @@ public class Display
     {
         if (grayFilter != null && !grayFilter.ok(text))
         {
-            return new Color(200, 200, 200);//"null.color");
+            return new Color(200, 200, 200);
         }
         Color c = topColors.get(text);
         return c == null ? _makeColor(text) : c;
@@ -343,11 +329,11 @@ public class Display
         }
         if (o instanceof RoughTime)
         {
-            return ((RoughTime) o).format();//UnitOfTime.format((RoughTime)o);
+            return ((RoughTime) o).format();
         }
         if (o instanceof Double)
         {
-            return df.format((Double) o);
+            return df.format(o);
         }
         return o.toString();
     }
@@ -358,7 +344,7 @@ public class Display
         {
             return getString("null.label");
         }
-        return time.format();//UnitOfTime.format(time);
+        return time.format();
     }
 
     public boolean emptyMessage(Graphics g, TFModel model)
