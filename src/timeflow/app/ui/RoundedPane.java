@@ -2,6 +2,7 @@ package timeflow.app.ui;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
@@ -57,7 +58,14 @@ public class RoundedPane extends JPanel
     @Override
     public Insets getInsets()
     {
-        return new Insets(0, 0, 10, 10);
+        if (getComponentOrientation() == ComponentOrientation.LEFT_TO_RIGHT)
+        {
+            return new Insets(0, 0, 10, 10);
+        }
+        else
+        {
+            return new Insets(0, 10, 0, 10);
+        }
     }
 
     @Override
