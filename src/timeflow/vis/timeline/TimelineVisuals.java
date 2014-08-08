@@ -327,11 +327,6 @@ public class TimelineVisuals
 			//Collections.sort(misc.visualActs);
 		}
 		*/
-
-        for (TimelineTrack t : trackList)
-        {
-            Collections.sort(t.visualActs);
-        }
     }
 
     public enum Layout

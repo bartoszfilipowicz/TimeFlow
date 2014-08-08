@@ -3,6 +3,7 @@ package timeflow.vis;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.Objects;
 
 import timeflow.data.db.Act;
 import timeflow.data.time.RoughTime;
@@ -10,7 +11,7 @@ import timeflow.model.Display;
 import timeflow.util.ColorUtils;
 import timeflow.vis.timeline.TimelineTrack;
 
-public class VisualAct implements Comparable
+public class VisualAct implements Comparable<VisualAct>
 {
     final Act act;
     Color color;
@@ -258,11 +259,38 @@ public class VisualAct implements Comparable
         this.end = end;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(act, label, start, end);
+    }
 
     @Override
-    public int compareTo(Object o)
+    public boolean equals(Object obj)
     {
-        return RoughTime.compare(start, ((VisualAct) o).start);
-        //start.compareTo(((VisualAct)o).start);
+        if (!(obj instanceof VisualAct))
+        {
+            return false;
+        }
+
+        VisualAct other = (VisualAct) obj;
+
+        return
+            Objects.equals(act, other.act) &&
+            Objects.equals(label, other.label) &&
+            Objects.equals(start, other.start) &&
+            Objects.equals(end, other.end);
+    }
+
+    @Override
+    public int compareTo(VisualAct o)
+    {
+        int comparison = RoughTime.compare(start, o.start);
+        if (comparison != 0)
+        {
+            return comparison;
+        }
+
+        return Integer.compare(hashCode(), o.hashCode());
     }
 }

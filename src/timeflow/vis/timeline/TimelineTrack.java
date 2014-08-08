@@ -1,7 +1,7 @@
 package timeflow.vis.timeline;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import timeflow.util.DoubleBag;
 import timeflow.vis.VisualAct;
@@ -9,7 +9,7 @@ import timeflow.vis.VisualAct;
 public class TimelineTrack implements Comparable
 {
     String label;
-    List<VisualAct> visualActs = new ArrayList<VisualAct>();
+    SortedSet<VisualAct> visualActs = new TreeSet<VisualAct>();
     int y0, y1;
     DoubleBag<Long> histogram;
 
