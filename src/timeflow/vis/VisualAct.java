@@ -258,7 +258,7 @@ public class VisualAct implements Comparable<VisualAct>
     @Override
     public int hashCode()
     {
-        return Objects.hash(act, label, start, end);
+        return Objects.hash(act, label, start, end, trackString);
     }
 
     @Override
@@ -275,7 +275,8 @@ public class VisualAct implements Comparable<VisualAct>
             Objects.equals(act, other.act) &&
             Objects.equals(label, other.label) &&
             Objects.equals(start, other.start) &&
-            Objects.equals(end, other.end);
+            Objects.equals(end, other.end) &&
+            Objects.equals(trackString, other.trackString);
     }
 
     @Override
