@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import javax.swing.JComponent;
 
@@ -97,17 +98,29 @@ public class TimelineRenderer
         for (TimelineTrack t : visuals.trackList)
         {
             // now... if not in graph mode, just draw items
-            if (visuals.getLayoutStyle() != TimelineVisuals.Layout.GRAPH)//max<(t.y1-t.y0)/20)
+            if (visuals.getLayoutStyle() != TimelineVisuals.Layout.GRAPH)
             {
-                for (VisualAct v : t.visualActs)
+                List<VisualAct> visibleActs = t.visualActs.stream().parallel().filter(v -> v.isVisible(bounds)).collect(Collectors.toList());
+                long count = visibleActs.size();
+                Object aaHint = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+
+                if (count > Integer.getInteger("timeflow.vis.timeline.antiAliasThreshold", 1000))
                 {
-                    Mouseover o = v.draw(component, g, null, bounds, display, true, true, leftToRight);
+                    // Disable anti-aliasing for larger sets of items
+                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                }
+
+                visibleActs.forEach(visualAct -> {
+                    Mouseover o = visualAct.draw(component, g, null, bounds, display, true, true, leftToRight);
                     if (o != null)
                     {
                         o.y -= dy;
                         objectLocations.add(o);
                     }
-                }
+                });
+
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aaHint); // Reset to previous setting
+
                 continue;
             }
 

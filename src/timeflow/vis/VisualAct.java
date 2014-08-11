@@ -82,13 +82,7 @@ public class VisualAct implements Comparable<VisualAct>
     public Mouseover draw(JComponent component, Graphics2D g, Rectangle maxFill, Rectangle bounds,
                           Display display, boolean showText, boolean showDuration, boolean leftToRight)
     {
-        if (!isVisible())
-        {
-            return null;
-        }
-
-        if (x > bounds.x + bounds.width && (end == null || endX > bounds.x + bounds.width) ||
-            x < bounds.x - 200 && (end == null || endX < bounds.x - 200))
+        if (!isVisible(bounds))
         {
             return null;
         }
@@ -140,6 +134,20 @@ public class VisualAct implements Comparable<VisualAct>
     public boolean isVisible()
     {
         return visible;
+    }
+
+    /**
+     * Checks if the visual act is visible within the bounds.
+     *
+     * @param bounds the bounds to check.
+     * @return {@code true} if visible.
+     */
+    public boolean isVisible(Rectangle bounds)
+    {
+        return
+            visible &&
+            !(x > bounds.x + bounds.width && (end == null || endX > bounds.x + bounds.width) ||
+              x < bounds.x - 200 && (end == null || endX < bounds.x - 200));
     }
 
     public void setVisible(boolean visible)

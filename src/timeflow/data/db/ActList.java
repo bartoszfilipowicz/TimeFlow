@@ -1,7 +1,6 @@
 package timeflow.data.db;
 
 import java.util.LinkedHashSet;
-import java.util.stream.StreamSupport;
 
 public class ActList extends LinkedHashSet<Act>
 {
@@ -24,6 +23,6 @@ public class ActList extends LinkedHashSet<Act>
             throw new ArrayIndexOutOfBoundsException(index);
         }
 
-        return StreamSupport.stream(spliterator(), false).skip(index).findFirst().get();
+        return stream().skip(index).findFirst().get();
     }
 }
