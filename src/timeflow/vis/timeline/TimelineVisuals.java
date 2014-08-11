@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import timeflow.data.db.Act;
@@ -198,6 +197,7 @@ public class TimelineVisuals
         updateVisuals();
     }
 
+    // TODO: performance
     private Interval guessInitialViewInterval(ActList acts, Interval fullRange)
     {
         if (acts.size() < 50)
@@ -274,7 +274,6 @@ public class TimelineVisuals
 
         // now arrange on tracks
         ConcurrentMap<String, TimelineTrack> trackTable = new ConcurrentHashMap<>();
-        ConcurrentSkipListSet<TimelineTrack> tempTrackList = new ConcurrentSkipListSet<>();
         final AtomicInteger visibleCount = new AtomicInteger();
 
         acts.stream()
@@ -282,22 +281,17 @@ public class TimelineVisuals
             .filter(VisualAct::isVisible)
             .forEach(visualAct -> {
                 visibleCount.incrementAndGet();
+
                 String trackName = visualAct.getTrackString();
+                trackTable.putIfAbsent(trackName, new TimelineTrack(trackName));
                 TimelineTrack track = trackTable.get(trackName);
-                if (track == null)
-                {
-                    track = new TimelineTrack(trackName);
-                    if (trackTable.putIfAbsent(trackName, track) == null)
-                    {
-                        tempTrackList.add(track);
-                    }
-                }
-                track.add(visualAct);
+
                 visualAct.setTrack(track);
+                track.add(visualAct);
             });
 
         numShown = visibleCount.get();
-        trackList = new ArrayList<>(tempTrackList);
+        trackList = new ArrayList<>(trackTable.values());
     }
 
     /**
