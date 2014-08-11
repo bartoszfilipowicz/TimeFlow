@@ -64,9 +64,9 @@ public class TimelineRenderer
         // need to check this, because resize events don't (and shouldn't) register with central TFModel.
         visuals.layoutIfChanged();
 
-        java.util.List<VisualAct> visualActs = visuals.getVisualActs();
+        Collection<VisualAct> visualActs = visuals.getVisualActs();
 
-        if (visualActs == null || visualActs.size() == 0)
+        if (visualActs == null || visualActs.isEmpty())
         {
             g.drawString(bundle.getString("TimelineRenderer.noData"), 10, 30);
             return;

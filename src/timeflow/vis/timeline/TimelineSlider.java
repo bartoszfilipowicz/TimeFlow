@@ -30,6 +30,11 @@ public class TimelineSlider extends ModelPanel
      */
     private static final ResourceBundle bundle = ResourceBundle.getBundle("timeflow/vis/timeline/Bundle");
 
+    /**
+     * Only render each item in the slider if the count is less than this limit.
+     */
+    private static final int DETAILED_RENDER_THRESHOLD = 30;
+
     TimelineVisuals visuals;
     Interval original;
     long minRange;
@@ -41,7 +46,6 @@ public class TimelineSlider extends ModelPanel
     Point mouse = new Point(-1, 0);
     Modify change = Modify.NONE;
 
-    ;
     Rectangle startRect = new Rectangle(-1, -1, 0, 0);
     Rectangle endRect = new Rectangle(-1, -1, 0, 0);
     Rectangle positionRect = new Rectangle(-1, -1, 0, 0);
@@ -349,6 +353,13 @@ public class TimelineSlider extends ModelPanel
             {
                 continue;
             }
+
+            if (mostInSlot > DETAILED_RENDER_THRESHOLD)
+            {
+                // Too many item, no need to count any further
+                break;
+            }
+
             int x = scale.toInt(v.getStart().getTime());
             int s = x / slotW;
             if (s >= 0 && s < slotNum)
@@ -358,7 +369,7 @@ public class TimelineSlider extends ModelPanel
             }
         }
 
-        if (mostInSlot > 30)
+        if (mostInSlot > DETAILED_RENDER_THRESHOLD)
         {
             double logMax = Math.log10(mostInSlot);
 
@@ -409,7 +420,7 @@ public class TimelineSlider extends ModelPanel
         g.setColor(change == Modify.END ? sideMouse : sidePlain);
         g.fill(endRect);
 
-        if (mostInSlot > 30)
+        if (mostInSlot > DETAILED_RENDER_THRESHOLD)
         {
             // Render the scale label
             g.setColor(Color.lightGray);

@@ -2,6 +2,7 @@ package timeflow.vis.timeline;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -151,7 +152,7 @@ public class TimelineVisuals
         timeScale.setInterval(interval);
     }
 
-    public java.util.List<VisualAct> getVisualActs()
+    public Collection<VisualAct> getVisualActs()
     {
         return encoder.getVisualActs();
     }

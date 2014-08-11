@@ -121,7 +121,7 @@ public class Grid
         }
     }
 
-    void makeCells(java.util.List<VisualAct> visualActs)
+    void makeCells(Collection<VisualAct> visualActs)
     {
         cells = new HashMap<Long, GridCell>();
         for (VisualAct v : visualActs)

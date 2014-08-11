@@ -2,6 +2,7 @@ package timeflow.vis;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,13 +15,13 @@ import timeflow.model.Display;
 import timeflow.model.TFModel;
 import timeflow.model.VirtualField;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 public final class VisualEncoder
 {
 
     private TFModel model;
-    private java.util.List<VisualAct> visualActs = new ArrayList<VisualAct>();
+    private Collection<VisualAct> visualActs = new ArrayList<VisualAct>();
     private double maxSize = 0;
     private Field label;
     private Field track;
@@ -32,7 +33,7 @@ public final class VisualEncoder
         this.model = model;
     }
 
-    public java.util.List<VisualAct> getVisualActs()
+    public Collection<VisualAct> getVisualActs()
     {
         return visualActs;
     }
@@ -43,7 +44,7 @@ public final class VisualEncoder
         Field trackField = model.getDB().getField(VirtualField.TRACK);
         boolean multipleColors = colorField != null && colorField.getType() == String[].class && colorField != trackField;
         visualActs = VisualActFactory.create(model.getDB().all(), trackField, multipleColors);
-        Collections.sort(visualActs);
+        Collections.sort((List<VisualAct>)visualActs);
     }
 
     public List<VisualAct> apply()

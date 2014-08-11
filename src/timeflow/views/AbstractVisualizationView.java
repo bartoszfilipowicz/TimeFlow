@@ -142,8 +142,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
             @Override
             public void mouseClicked(MouseEvent e)
             {
-                Point p = new Point(e.getX(), e.getY());
-                Mouseover o = find(p);
+                Mouseover o = findMouse();
 
                 if (o != null && o.thing instanceof VisualAct)
                 {
@@ -175,7 +174,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
                 if (e.isPopupTrigger() && allowPopupMenu)
                 {
                     Point p = new Point(e.getX(), e.getY());
-                    Mouseover o = find(p);
+                    Mouseover o = findMouse();
                     boolean onAct = o != null && o.thing instanceof VisualAct;
                     if (onAct)
                     {
@@ -326,16 +325,13 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         return false;
     }
 
-    public Mouseover find(Point p)
+    public Mouseover findMouse()
     {
-        for (Mouseover o : objectLocations)
-        {
-            if (o.contains(mouse))
-            {
-                return o;
-            }
-        }
-        return null;
+        return objectLocations
+            .parallelStream()
+            .filter(o -> o.contains(mouse))
+            .findFirst()
+            .orElse(null);
     }
 
     @Override
@@ -349,7 +345,7 @@ public abstract class AbstractVisualizationView extends JPanel implements ItemSe
         {
             return;
         }
-        Mouseover highlight = find(mouse);
+        Mouseover highlight = findMouse();
         if (highlight != null)
         {
             highlight.draw(g);
