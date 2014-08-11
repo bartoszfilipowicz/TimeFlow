@@ -335,7 +335,7 @@ public class CalendarView extends AbstractView
             }
             visuals.setBounds(0, 0, getSize().width, getSize().height);
             objectLocations = new ArrayList<Mouseover>();
-            visuals.render(g, objectLocations, getComponentOrientation().isLeftToRight());
+            visuals.render(this, g, objectLocations, getComponentOrientation().isLeftToRight());
         }
     }
 }

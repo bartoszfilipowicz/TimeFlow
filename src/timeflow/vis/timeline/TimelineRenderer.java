@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import javax.swing.JComponent;
+
 import timeflow.data.db.ActDB;
 import timeflow.data.time.Interval;
 import timeflow.model.Display;
@@ -43,7 +45,7 @@ public class TimelineRenderer
         this.dy = dy;
     }
 
-    public void render(Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
+    public void render(JComponent component, Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
     {
         AffineTransform old = g.getTransform();
         g.setTransform(AffineTransform.getTranslateInstance(0, -dy));
@@ -99,7 +101,7 @@ public class TimelineRenderer
             {
                 for (VisualAct v : t.visualActs)
                 {
-                    Mouseover o = v.draw(g, null, bounds, display, true, true, leftToRight);
+                    Mouseover o = v.draw(component, g, null, bounds, display, true, true, leftToRight);
                     if (o != null)
                     {
                         o.y -= dy;

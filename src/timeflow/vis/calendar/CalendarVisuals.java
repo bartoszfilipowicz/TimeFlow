@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Collection;
 
+import javax.swing.JComponent;
+
 import timeflow.data.db.DBUtils;
 import timeflow.data.time.Interval;
 import timeflow.data.time.TimeUnit;
@@ -29,9 +31,9 @@ public class CalendarVisuals
         encoder = new VisualEncoder(model);
     }
 
-    public void render(Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
+    public void render(JComponent component, Graphics2D g, Collection<Mouseover> objectLocations, boolean leftToRight)
     {
-        grid.render(g, model.getDisplay(), bounds, this, objectLocations, leftToRight);
+        grid.render(component, g, model.getDisplay(), bounds, this, objectLocations, leftToRight);
     }
 
     public Interval getGlobalInterval()

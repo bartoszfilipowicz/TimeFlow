@@ -6,13 +6,17 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import sun.font.FontUtilities;
@@ -242,6 +246,46 @@ public class Display
         return new JLabel(s);
     }
 
+    /**
+     * Formats the input string to a limited length. This method will sensibly chop Arabic text at word boundaries.
+     *
+     * @param input the input string.
+     * @param component the component which holds the string to draw.
+     * @param fontMetrics the font metrics.
+     * @param width the maximum width.
+     * @return the string, possibly truncated.
+     */
+    public String format(String input, JComponent component, FontMetrics fontMetrics, int width)
+    {
+        Rectangle viewRectangle = new Rectangle(0, 0, width, fontMetrics.getHeight());
+        Rectangle textRectangle = new Rectangle(viewRectangle);
+        Rectangle iconRectangle = new Rectangle();
+
+        return SwingUtilities.layoutCompoundLabel(
+            component,
+            fontMetrics,
+            input,
+            null, // No icon
+            SwingConstants.BOTTOM,
+            SwingUtilities.LEADING,
+            SwingConstants.BOTTOM,
+            SwingUtilities.LEADING,
+            viewRectangle,
+            iconRectangle,
+            textRectangle,
+            0); // Icon/text gap
+    }
+
+    /**
+     * Formats a string.
+     *
+     * @param s
+     * @param maxLength
+     * @param tryNoDots
+     * @return
+     * @deprecated splits the string mid-word which is not valid for Arabic text. Use SwingUtilities.layoutCompoundLabel() instead.
+     */
+    @Deprecated
     public String format(String s, int maxLength, boolean tryNoDots)
     {
         if (s == null)

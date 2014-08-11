@@ -556,7 +556,7 @@ public class TimelineView extends AbstractView
             g.fillRect(0, 0, 2 * getSize().width, getSize().height);
             visuals.setBounds(0, 0, getSize().width, getSize().height);
             objectLocations = new ArrayList<Mouseover>();
-            timeline.render(g, objectLocations, getComponentOrientation().isLeftToRight());
+            timeline.render(this, g, objectLocations, getComponentOrientation().isLeftToRight());
             grid.render(g, objectLocations);
         }
 

@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.swing.JComponent;
+
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormatter;
@@ -143,7 +145,7 @@ public class Grid
         }
     }
 
-    void render(Graphics2D g, Display display, Rectangle screenBounds, CalendarVisuals visuals,
+    void render(JComponent component, Graphics2D g, Display display, Rectangle screenBounds, CalendarVisuals visuals,
                 Collection<Mouseover> objectLocations, boolean leftToRight)
     {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -353,7 +355,7 @@ public class Grid
                 v.setX(x);
                 v.setY(y);
                 v.setSpaceNextTo(space); // TODO: RTL support
-                Mouseover o = v.draw(g, new Rectangle(cx + 1, cy + labelH + 1, cellWidth - 2, cellHeight - 2 - labelH),
+                Mouseover o = v.draw(component, g, new Rectangle(cx + 1, cy + labelH + 1, cellWidth - 2, cellHeight - 2 - labelH),
                                      bounds, display, shouldLabel, false, leftToRight);
                 if (o != null)
                 {

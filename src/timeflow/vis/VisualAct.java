@@ -5,10 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Objects;
 
+import javax.swing.JComponent;
+
 import timeflow.data.db.Act;
 import timeflow.data.time.RoughTime;
 import timeflow.model.Display;
-import timeflow.util.ColorUtils;
 import timeflow.vis.timeline.TimelineTrack;
 
 public class VisualAct implements Comparable<VisualAct>
@@ -78,7 +79,7 @@ public class VisualAct implements Comparable<VisualAct>
     }
 
     // TODO: what is up with all these magic numbers??
-    public Mouseover draw(Graphics2D g, Rectangle maxFill, Rectangle bounds,
+    public Mouseover draw(JComponent component, Graphics2D g, Rectangle maxFill, Rectangle bounds,
                           Display display, boolean showText, boolean showDuration, boolean leftToRight)
     {
         if (!isVisible())
@@ -112,25 +113,13 @@ public class VisualAct implements Comparable<VisualAct>
 
         if (labelSpace > 50)
         {
-            String text = display.format(getLabel(), labelSpace / display.plainFontMetrics().charWidth('m'), true);
+            String text = display.format(getLabel(), component, display.plainFontMetrics(), labelSpace);
             stringWidth = display.plainFontMetrics().stringWidth(text);
 
-            int n = text.indexOf(' ');
             int tx = leftToRight ? originX + 2 * radius + textXInset : originX - stringWidth - textXInset;
             int ty = y + 4;
 
-            if (n < 1)
-            {
-                g.drawString(text, tx, ty);
-            }
-            else
-            {
-                String first = text.substring(0, n);
-                g.drawString(first, tx, ty);
-                Color c = ColorUtils.interpolate(g.getColor(), Color.white, .33);
-                g.setColor(c);
-                g.drawString(text.substring(n), tx + display.plainFontMetrics().stringWidth(first), ty);
-            }
+            g.drawString(text, tx, ty);
 
             stringHeight = display.plainFontMetrics().getHeight();
         }
@@ -142,7 +131,6 @@ public class VisualAct implements Comparable<VisualAct>
 
         return new VisualActMouseover(this, vx, vy, width, height);
     }
-
 
     public Act getAct()
     {
