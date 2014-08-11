@@ -5,59 +5,52 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
-import timeflow.data.db.Act;
 import timeflow.data.db.ActDB;
 import timeflow.data.db.ActList;
 import timeflow.data.db.Field;
 import timeflow.model.TFModel;
 import timeflow.model.VirtualField;
 
+import static java.util.stream.Collectors.*;
+
 public class VisualActFactory
 {
-    // create one VisualAct per Act
-    private static java.util.List<VisualAct> create(ActList acts)
-    {
-        java.util.List<VisualAct> list = new ArrayList<VisualAct>();
-        for (Act a : acts)
-        {
-            VisualAct v = new TagVisualAct(a);
-            list.add(v);
-        }
-        return list;
-    }
-
     // create one VisualAct per Act/tag combo.
-    public static java.util.List<VisualAct> create(ActList acts, Field tagField, boolean multipleColors)
+    public static Collection<VisualAct> create(ActList acts, Field tagField, boolean multipleColors)
     {
         if (tagField == null || tagField.getType() == String.class)
         {
-            return create(acts);
+            return acts.parallelStream().map(TagVisualAct::new).sorted().collect(toList());
         }
-        java.util.List<VisualAct> list = new ArrayList<VisualAct>();
-        for (Act a : acts)
-        {
-            String[] tags = a.getTextList(tagField);
-            if (tags == null || tags.length < 2)
-            {
-                VisualAct v = new TagVisualAct(a);
-                if (tags != null && tags.length == 1)
+
+        ConcurrentSkipListSet<VisualAct> visualActs = new ConcurrentSkipListSet();
+
+        acts.parallelStream()
+            .forEach(a -> {
+                String[] tags = a.getTextList(tagField);
+                if (tags == null || tags.length < 2)
                 {
-                    v.setTrackString(tags[0]);
+                    VisualAct v = new TagVisualAct(a);
+                    if (tags != null && tags.length == 1)
+                    {
+                        v.setTrackString(tags[0]);
+                    }
+                    visualActs.add(v);
                 }
-                list.add(v);
-            }
-            else
-            {
-                for (String tag : tags)
+                else
                 {
-                    VisualAct v = multipleColors ? new TagVisualAct(a) : new VisualAct(a);
-                    v.setTrackString(tag);
-                    list.add(v);
+                    for (String tag : tags)
+                    {
+                        VisualAct v = multipleColors ? new TagVisualAct(a) : new VisualAct(a);
+                        v.setTrackString(tag);
+                        visualActs.add(v);
+                    }
                 }
-            }
-        }
-        return list;
+            });
+
+        return visualActs;
     }
 
     public static Collection<VisualAct> makeEmFit(TFModel model, ArrayList<VisualAct> vacts, Rectangle bounds)
