@@ -329,6 +329,16 @@ public class TimelineVisuals
 		*/
     }
 
+    /**
+     * Sets whether the timeline is in LTR or RTL mode.
+     *
+     * @param leftToRight {@code true} if in lef-to-right mode.
+     */
+    public void setLeftToRight(boolean leftToRight)
+    {
+        this.leftToRight = leftToRight;
+    }
+
     public enum Layout
     {
         TIGHT, LOOSE, GRAPH

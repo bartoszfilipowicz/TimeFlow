@@ -1,6 +1,6 @@
 package timeflow.vis.timeline;
 
-import java.util.SortedSet;
+import java.util.NavigableSet;
 import java.util.TreeSet;
 
 import timeflow.util.DoubleBag;
@@ -9,7 +9,7 @@ import timeflow.vis.VisualAct;
 public class TimelineTrack implements Comparable
 {
     String label;
-    SortedSet<VisualAct> visualActs = new TreeSet<VisualAct>();
+    NavigableSet<VisualAct> visualActs = new TreeSet<VisualAct>();
     int y0, y1;
     DoubleBag<Long> histogram;
 
@@ -101,8 +101,17 @@ public class TimelineTrack implements Comparable
 
             if (rights[cell] != null)
             {
-                int space = x - rights[cell].getX();
-                rights[cell].setSpaceNextTo(space); // TODO: RTL support
+                if (leftToRight)
+                {
+                    int space = x - rights[cell].getX();
+                    rights[cell].setSpaceNextTo(space);
+                }
+                else
+                {
+                    int endX = rights[cell].getEnd() == null ? rights[cell].getX() : rights[cell].getEndX();
+                    int space = x - endX;
+                    v.setSpaceNextTo(space);
+                }
             }
             rights[cell] = v;
             if ((last != null && v.getStart().getTime() == last.getStart().getTime())

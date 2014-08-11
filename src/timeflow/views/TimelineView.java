@@ -13,6 +13,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
@@ -57,6 +59,15 @@ public class TimelineView extends AbstractView
         visuals = new TimelineVisuals(model, getComponentOrientation().isLeftToRight());
         grid = new AxisRenderer(visuals);
         timeline = new TimelineRenderer(visuals);
+
+        addPropertyChangeListener("componentOrientation", new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                visuals.setLeftToRight(getComponentOrientation().isLeftToRight());
+            }
+        });
 
         timelinePanel = new TimelinePanel(model);
         scroller = new ScrollingTimeline();
