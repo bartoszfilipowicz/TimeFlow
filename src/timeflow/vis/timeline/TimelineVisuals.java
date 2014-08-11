@@ -3,8 +3,10 @@ package timeflow.vis.timeline;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import timeflow.data.db.Act;
 import timeflow.data.db.ActDB;
@@ -271,62 +273,31 @@ public class TimelineVisuals
         java.util.List<VisualAct> acts = encoder.apply();
 
         // now arrange on tracks
-        Map<String, TimelineTrack> trackTable = new HashMap<String, TimelineTrack>();
-        trackList = new ArrayList<TimelineTrack>();
-        numShown = 0;
-        for (VisualAct v : acts)
-        {
-            if (!v.isVisible())
-            {
-                continue;
-            }
-            numShown++;
-            String s = v.getTrackString();
-            TimelineTrack t = trackTable.get(s);
-            if (t == null)
-            {
-                t = new TimelineTrack(s);
-                trackTable.put(s, t);
-                trackList.add(t);
-            }
-            t.add(v);
-            v.setTrack(t);
-        }
+        ConcurrentMap<String, TimelineTrack> trackTable = new ConcurrentHashMap<>();
+        ConcurrentSkipListSet<TimelineTrack> tempTrackList = new ConcurrentSkipListSet<>();
+        final AtomicInteger visibleCount = new AtomicInteger();
 
-		/*
-	   // the following code is no longer used, but could come in handy again one day...
+        acts.stream()
+            .parallel()
+            .filter(VisualAct::isVisible)
+            .forEach(visualAct -> {
+                visibleCount.incrementAndGet();
+                String trackName = visualAct.getTrackString();
+                TimelineTrack track = trackTable.get(trackName);
+                if (track == null)
+                {
+                    track = new TimelineTrack(trackName);
+                    if (trackTable.putIfAbsent(trackName, track) == null)
+                    {
+                        tempTrackList.add(track);
+                    }
+                }
+                track.add(visualAct);
+                visualAct.setTrack(track);
+            });
 
-		// If there is more than one "small" track, then we will coalesce them into
-		// one bigger "miscellaneous" track.
-		int minSize=numShown/30;//Math.max(3,numShown/30);
-		ArrayList<TimelineTrack> small=new ArrayList<TimelineTrack>();
-		for (TimelineTrack t: trackList)
-		{
-			if (t.size()<minSize)
-				small.add(t);
-		}
-		if (small.size()>1)
-		{
-			// create a new Track for "miscellaneous."
-			TimelineTrack misc=new TimelineTrack(Display.MISC_CODE);
-			trackList.add(misc);
-			trackTable.put(misc.label, misc);
-
-			// remove the old tracks.
-			for (TimelineTrack t:small)
-			{
-				trackList.remove(t);
-				trackTable.remove(t.label);
-				for (VisualAct v: t.visualActs)
-				{
-					v.setTrack(misc);
-					misc.add(v);
-				}
-			}
-			// sort miscellaneous items in time order.
-			//Collections.sort(misc.visualActs);
-		}
-		*/
+        numShown = visibleCount.get();
+        trackList = new ArrayList<>(tempTrackList);
     }
 
     /**

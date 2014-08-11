@@ -14,6 +14,8 @@ import timeflow.model.Display;
 import timeflow.model.TFModel;
 import timeflow.model.VirtualField;
 
+import static java.util.stream.Collectors.toList;
+
 public final class VisualEncoder
 {
 
@@ -62,27 +64,27 @@ public final class VisualEncoder
             maxSize = Math.max(Math.abs(minmax[0]), Math.abs(minmax[1]));
         }
 
-        List<VisualAct> visibleActs = new ArrayList<VisualAct>(modelActs.size());
+        // Apply color, label, visibility, etc. Collect the visible items to a sorted list
+        return visualActs
+            .parallelStream()
+            .filter(visualAct -> {
+                Act a = visualAct.getAct();
+                visualAct.setStart(start == null ? null : a.getTime(start));
+                visualAct.setEnd(end == null ? null : a.getTime(end));
+                if (modelActs.contains(a) && visualAct.getStart() != null && visualAct.getStart().isDefined())
+                {
+                    visualAct.setVisible(true);
+                }
+                else
+                {
+                    visualAct.setVisible(false);
+                }
+                apply(visualAct); // Required even if hidden for the bottom slider
 
-        // apply color, label, visibility, etc.
-        for (VisualAct v : visualActs)
-        {
-            Act a = v.getAct();
-            v.setStart(start == null ? null : a.getTime(start));
-            v.setEnd(end == null ? null : a.getTime(end));
-            if (modelActs.contains(a) && v.getStart() != null && v.getStart().isDefined())
-            {
-                v.setVisible(true);
-                visibleActs.add(v);
-            }
-            else
-            {
-                v.setVisible(false);
-            }
-            apply(v);
-        }
-
-        return visibleActs;
+                return visualAct.isVisible();
+            })
+            .sorted()
+            .collect(toList());
     }
 
     private void apply(VisualAct v)

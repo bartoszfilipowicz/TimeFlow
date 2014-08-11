@@ -1,7 +1,6 @@
 package timeflow.vis.timeline;
 
-import java.util.NavigableSet;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import timeflow.util.DoubleBag;
 import timeflow.vis.VisualAct;
@@ -9,7 +8,7 @@ import timeflow.vis.VisualAct;
 public class TimelineTrack implements Comparable
 {
     String label;
-    NavigableSet<VisualAct> visualActs = new TreeSet<VisualAct>();
+    ConcurrentSkipListSet<VisualAct> visualActs = new ConcurrentSkipListSet<VisualAct>();
     int y0, y1;
     DoubleBag<Long> histogram;
 
