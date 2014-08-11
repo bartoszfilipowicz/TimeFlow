@@ -1,10 +1,10 @@
 package timeflow.data.db;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.stream.StreamSupport;
 
-public class ActList extends ArrayList<Act>
+public class ActList extends LinkedHashSet<Act>
 {
-
     private ActDB db;
 
     public ActList(ActDB db)
@@ -17,8 +17,13 @@ public class ActList extends ArrayList<Act>
         return db;
     }
 
-    public ActList copy()
+    public Act get(int index)
     {
-        return (ActList) clone();
+        if (index < 0 || index > size())
+        {
+            throw new ArrayIndexOutOfBoundsException(index);
+        }
+
+        return StreamSupport.stream(spliterator(), false).skip(index).findFirst().get();
     }
 }
